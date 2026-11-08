@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { categories, categoryLabel, type CategoryKey } from '../../data/taxonomy';
+import { getPosts } from '../../lib/posts';
+import { site } from '../../site.config';
+
+export function getStaticPaths() {
+  return (Object.keys(categories) as CategoryKey[]).map((key) => ({
+    params: { category: key },
+    props: { key },
+  }));
+}
+
+interface Props {
+  key: CategoryKey;
+}
+
+const { key } = Astro.props;
+const posts = (await getPosts()).filter((post) => post.data.category === key);
+const category = categories[key];
+
+const descriptions: Record<CategoryKey, string> = {
+  tech: '关于 Minecraft 服务器、架构、工具和工程实践的长文。写下做过的选择，也写下没有选择的路。',
+  tutorial: '可以照着做的教程与踩坑记录。每一个步骤都在真实项目里跑过。',
+  essay: '关于写作、语言和日常的随笔。不一定有结论，但一定想过。',
+  life: '不写代码时收集的生活碎片：一段路、一场雨、一本书。',
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${category.label}文章`,
+  url: new URL(`/categories/${key}/`, site.url).href,
+  description: descriptions[key],
+};
+---
+
+<BaseLayout
+  title={`${category.label} · 分类`}
+  description={descriptions[key]}
+  jsonLd={jsonLd}
+>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">{category.label.slice(0, 1)}</span>
+    <div class="container">
+      <p class="kicker">Category · {category.labelEn}</p>
+      <h1 class="masthead__title">{category.label}</h1>
+      <p class="masthead__lede">{descriptions[key]}</p>
+      <p class="masthead__count">{posts.length} Articles</p>
+
+      <nav class="pill-nav" aria-label="切换分类">
+        <a class="pill" href="/blog/">全部</a>
+        {
+          (Object.keys(categories) as CategoryKey[]).map((item) => (
+            <a
+              class="pill"
+              href={`/categories/${item}/`}
+              aria-current={item === key ? 'page' : undefined}
+            >
+              {categoryLabel(item)}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+  </section>
+
+  <section class="container journal" aria-label={`${category.label}文章列表`}>
+    {
+      posts.length > 0 ? (
+        <div class="post-grid">
+          {posts.map((post, index) => <PostCard post={post} index={index} />)}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p>这个分类还没有纸片。</p>
+          <a class="arrow-link" href="/blog/">去看看全部文章</a>
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .journal {
+    padding-top: 0;
+  }
+
+  .empty-state {
+    padding: 2.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--paper-raised);
+    text-align: center;
+    color: var(--ink-3);
+  }
+
+  .empty-state .arrow-link {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 700px) {
+    .pill-nav {
+      justify-content: flex-start;
+    }
+
+    .masthead__title {
+      font-size: clamp(2.5rem, 12vw, 3.4rem);
+    }
+  }
+</style>

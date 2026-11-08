@@ -1,0 +1,251 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import PostCard from '../../components/PostCard.astro';
+import { categories, categoryLabel, tagToSlug } from '../../data/taxonomy';
+import { categoryCounts, getPosts, tagCounts } from '../../lib/posts';
+import { site } from '../../site.config';
+
+const posts = await getPosts();
+const cats = categoryCounts(posts);
+const tags = tagCounts(posts);
+const zhCount = posts.filter((post) => post.data.lang === 'zh').length;
+const enCount = posts.length - zhCount;
+
+const canonical = new URL('/blog/', site.url).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '全部文章',
+  url: canonical,
+  description: '按时间叠放的全部文章，可按分类和语言筛选。',
+  inLanguage: 'zh-CN',
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: posts.map((post, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: new URL(`/blog/${post.id}/`, site.url).href,
+      name: post.data.title,
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="全部文章"
+  description="按时间叠放的全部文章，可按分类和语言筛选。涵盖 Minecraft、开发、教程、随笔与生活。"
+  jsonLd={jsonLd}
+>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">记</span>
+    <div class="container">
+      <p class="kicker">The Journal</p>
+      <h1 class="masthead__title">全部<em>纸片</em>。</h1>
+      <p class="masthead__lede">
+        按时间叠放，没有算法推荐，也没有热门排序。
+        只有写下来的顺序，以及那些值得被反复翻看的句子。
+      </p>
+      <p class="masthead__count">
+        {posts.length} Articles · 中文 {zhCount} / EN {enCount}
+      </p>
+
+      <form class="journal-search" action="/search/" method="get" role="search">
+        <label class="visually-hidden" for="journal-search">搜索文章</label>
+        <span class="journal-search__icon" aria-hidden="true">
+          <Icon name="search" size={18} />
+        </span>
+        <input
+          id="journal-search"
+          type="search"
+          name="q"
+          placeholder="搜索文章、标签或关键词…"
+          autocomplete="off"
+        />
+        <button type="submit" aria-label="搜索">
+          <Icon name="arrow-right" size={17} />
+        </button>
+      </form>
+
+      <nav class="pill-nav" aria-label="按分类筛选">
+        <button type="button" class="pill" data-filter-category="all" aria-pressed="true">
+          全部 <span class="pill__count">{posts.length}</span>
+        </button>
+        {
+          cats.map((cat) => (
+            <button
+              type="button"
+              class="pill"
+              data-filter-category={cat.key}
+              aria-pressed="false"
+            >
+              {categoryLabel(cat.key)}
+              <span class="pill__count">{cat.count}</span>
+            </button>
+          ))
+        }
+      </nav>
+
+      <div class="pill-nav pill-nav--lang" role="group" aria-label="按语言筛选">
+        <button type="button" class="pill pill--sm" data-filter-lang="all" aria-pressed="true">
+          全部语言
+        </button>
+        <button type="button" class="pill pill--sm" data-filter-lang="zh" aria-pressed="false">
+          中文
+        </button>
+        <button type="button" class="pill pill--sm" data-filter-lang="en" aria-pressed="false">
+          EN
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="container journal" aria-labelledby="post-list-title">
+    <h2 class="visually-hidden" id="post-list-title">文章列表</h2>
+    <p class="result-count" role="status" aria-live="polite" data-result-count>
+      显示 {posts.length} 篇纸片
+    </p>
+
+    <div class="post-grid" data-post-list>
+      {
+        posts.map((post, index) => (
+          <div
+            data-post-item
+            data-category={post.data.category}
+            data-lang={post.data.lang}
+          >
+            <PostCard post={post} index={index} />
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="empty-state" data-empty hidden>
+      <p>没有符合条件的纸片。换一个分类，或者切回「全部」看看。</p>
+    </div>
+  </section>
+
+  <section class="container tag-index" aria-labelledby="tag-index-title">
+    <div class="tag-index__head">
+      <p class="kicker">按标签翻</p>
+      <h2 id="tag-index-title">从一个词开始</h2>
+    </div>
+    <div class="pill-nav tag-index__pills">
+      {
+        tags.map((item) => (
+          <a class="pill pill--sm" href={`/tags/${tagToSlug(item.tag)}/`}>
+            #{item.tag}
+            <span class="pill__count">{item.count}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .journal {
+    padding-top: 0;
+  }
+
+  .pill-nav--lang {
+    margin-top: 0.1rem;
+  }
+
+  .empty-state {
+    margin-top: 1.5rem;
+    padding: 2.2rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--paper-raised);
+    color: var(--ink-3);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .tag-index {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    padding-top: clamp(1.8rem, 4vw, 2.5rem);
+    border-top: 1px solid var(--rule-soft);
+    text-align: center;
+  }
+
+  .tag-index__head h2 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  }
+
+  .tag-index__pills {
+    justify-content: center;
+    margin-top: 1.1rem;
+  }
+
+  @media (max-width: 700px) {
+    .pill-nav {
+      justify-content: flex-start;
+    }
+
+    .tag-index__pills {
+      justify-content: flex-start;
+    }
+
+    .masthead__title {
+      font-size: clamp(2.35rem, 11vw, 3.3rem);
+    }
+  }
+</style>
+
+<script>
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-post-item]'));
+  const categoryButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-filter-category]'),
+  );
+  const langButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-filter-lang]'),
+  );
+  const countEl = document.querySelector<HTMLElement>('[data-result-count]');
+  const emptyEl = document.querySelector<HTMLElement>('[data-empty]');
+
+  let activeCategory = 'all';
+  let activeLang = 'all';
+
+  const apply = () => {
+    let visible = 0;
+
+    items.forEach((item) => {
+      const categoryMatch =
+        activeCategory === 'all' || item.dataset.category === activeCategory;
+      const langMatch = activeLang === 'all' || item.dataset.lang === activeLang;
+      const show = categoryMatch && langMatch;
+      item.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    if (countEl) {
+      countEl.textContent = `显示 ${visible} 篇纸片`;
+    }
+    if (emptyEl) {
+      emptyEl.hidden = visible !== 0;
+    }
+  };
+
+  categoryButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeCategory = button.dataset.filterCategory ?? 'all';
+      categoryButtons.forEach((item) => {
+        item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+      });
+      apply();
+    });
+  });
+
+  langButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeLang = button.dataset.filterLang ?? 'all';
+      langButtons.forEach((item) => {
+        item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+      });
+      apply();
+    });
+  });
+</script>

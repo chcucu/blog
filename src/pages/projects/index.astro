@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects } from '../../lib/posts';
+import { site } from '../../site.config';
+
+const projects = await getProjects();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '项目',
+  url: new URL('/projects/', site.url).href,
+  description: '十年之约、Bento、蓝色信笺与星河班：Minecraft 服务器、插件、Web 工具与班级空间。',
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: projects.map((project, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: project.data.title,
+      url: new URL(`/projects/${project.id}/`, site.url).href,
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="项目"
+  description="十年之约、Bento、蓝色信笺与星河班：Minecraft 服务器、插件、Web 工具与班级空间。"
+  jsonLd={jsonLd}
+>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">做</span>
+    <div class="container">
+      <p class="kicker">Projects · Workbench</p>
+      <h1 class="masthead__title">做的东西</h1>
+      <p class="masthead__lede">
+        十年之约、Bento、蓝色信笺、星河班。
+        做服务器、插件、Web 工具和班级空间，也做一些只为弄明白一个细节的小东西。
+      </p>
+      <p class="masthead__count">{projects.length} Projects · 持续更新</p>
+    </div>
+  </section>
+
+  <section class="container project-section" aria-label="项目列表">
+    <div class="project-grid">
+      {projects.map((project) => <ProjectCard project={project} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .project-section {
+    padding-top: 0;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.2rem, 3vw, 2rem);
+  }
+
+  @media (max-width: 780px) {
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

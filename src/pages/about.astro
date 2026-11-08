@@ -1,0 +1,548 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../site.config';
+
+const sameAs = site.socials
+  .map((item) => item.href)
+  .filter((href) => href.startsWith('http'));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.author,
+  alternateName: site.handle,
+  url: site.url,
+  email: site.email,
+  description: site.description,
+  sameAs,
+  knowsAbout: [
+    'Minecraft',
+    'Plugin Development',
+    'Mod Development',
+    'Web Development',
+    'Photography',
+    'Music',
+    'Video',
+  ],
+};
+
+const facets = [
+  {
+    key: 'Minecraft',
+    title: '十年之约与 Paper 插件',
+    text: '维护十年之约，写 Paper 插件，偶尔改一点 Mod。',
+  },
+  {
+    key: 'Web',
+    title: '站点、工具与自动化',
+    text: '用 Astro、TypeScript 和 Cloudflare 做一些自己会用的东西。',
+  },
+  {
+    key: '摄影',
+    title: '城市、光线与日常',
+    text: '拍街头、窗边，和那些没有名字的蓝色时刻。',
+  },
+  {
+    key: '音乐',
+    title: '编曲、录音与现场',
+    text: '用电脑和几件乐器，把情绪整理成可以重复播放的东西。',
+  },
+  {
+    key: '影像',
+    title: '拍摄、剪辑与叙事',
+    text: '给服务器、旅行和音乐做短片，学习如何用画面讲故事。',
+  },
+  {
+    key: '学生',
+    title: '还在学',
+    text: '把不会的东西列出来，一次解决一个。',
+  },
+];
+
+const tones = ['blue', 'sage', 'clay', 'sand', 'blue', 'sage'] as const;
+
+const colophon = [
+  { label: '框架', value: 'Astro 7 · 静态生成' },
+  { label: '部署', value: 'Cloudflare Pages' },
+  { label: '字体', value: 'Fraunces · Inter · IBM Plex Mono' },
+  { label: '视觉', value: 'CSS 撕边、胶带与纸张噪点' },
+  { label: '内容', value: 'Markdown + Pages CMS' },
+  { label: '评论', value: 'Giscus · GitHub Discussions' },
+];
+---
+
+<BaseLayout
+  title="关于"
+  description={`关于 ${site.author}：十年之约服主、Paper 插件开发、Web、摄影、音乐与影像。`}
+  jsonLd={jsonLd}
+>
+  <section class="about-hero">
+    <div class="container about-hero__grid">
+      <div class="about-hero__copy">
+        <p class="kicker">About · {site.handle}</p>
+        <h1 class="about-hero__title">
+          你好，<br />
+          我是 <span class="about-hero__name">{site.author}</span>。
+        </h1>
+        <p class="about-hero__lede">
+          十年之约服主，写 Paper 插件和 Mod，也做 Web、拍照、做音乐、剪视频，
+          还在上学。这个站点是我的工作台：技术长文、项目记录，
+          以及那些不值得单独发一条动态的碎片。
+        </p>
+        <div class="about-hero__actions">
+          <a class="btn" href={`mailto:${site.email}`}>
+            <Icon name="mail" size={16} />
+            写信给我
+          </a>
+          <a class="btn btn--ghost" href="/blog/">
+            读读文章
+            <Icon name="arrow-right" size={15} />
+          </a>
+        </div>
+      </div>
+
+      <div class="about-hero__aside">
+        {
+          site.avatar ? (
+            <img
+              class="avatar avatar--image torn scrap"
+              style="--tilt: -2deg"
+              src={site.avatar}
+              alt={`${site.author} 的头像`}
+              width="460"
+              height="460"
+              loading="lazy"
+            />
+          ) : (
+            <div
+              class="avatar torn scrap"
+              style="--tilt: -2deg"
+              role="img"
+              aria-label="头像占位"
+            >
+              <span class="avatar__letter" aria-hidden="true">P</span>
+              <span class="avatar__caption">Portrait</span>
+            </div>
+          )
+        }
+        <div class="about-hero__tape" aria-hidden="true"></div>
+        <div class="about-stamp stamp" aria-hidden="true">EST.<br />2024<br />SHANGHAI</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight container" aria-labelledby="now-title">
+    <header class="section-head">
+      <div>
+        <p class="kicker">Now</p>
+        <h2 id="now-title" class="section-head__title">最近在做什么</h2>
+      </div>
+    </header>
+
+    <div class="now-grid">
+      <article class="now-card">
+        <span class="now-card__label">在开</span>
+        <h3>十年之约</h3>
+        <p>从 2024 开到 2034 的原版生存服：不卖特权、不删档，Java 与基岩互通。</p>
+      </article>
+      <article class="now-card">
+        <span class="now-card__label">在写</span>
+        <h3>Paper 插件与 Bento</h3>
+        <p>写 Bento 菜单框架和一些服务器插件，把重复动作交给代码。</p>
+      </article>
+      <article class="now-card">
+        <span class="now-card__label">在记录</span>
+        <h3>摄影、音乐与影像</h3>
+        <p>拍城市和光，做一点音乐，也给项目剪短片。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section section--tight container" aria-labelledby="facets-title">
+    <header class="section-head">
+      <div>
+        <p class="kicker">Facets</p>
+        <h2 id="facets-title" class="section-head__title">几个切面</h2>
+      </div>
+    </header>
+
+    <ul class="facets">
+      {
+        facets.map((item, index) => (
+          <li class="facet" data-tone={tones[index % tones.length]}>
+            <span class="facet__key">{item.key}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="section section--tight container" aria-labelledby="colophon-title">
+    <header class="section-head">
+      <div>
+        <p class="kicker">Colophon</p>
+        <h2 id="colophon-title" class="section-head__title">这个站怎么搭的</h2>
+      </div>
+    </header>
+
+    <dl class="colophon">
+      {
+        colophon.map((item) => (
+          <div class="colophon__row">
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <p class="colophon__note">
+      没有前端框架运行时，没有大图首屏，也没有第三方模板。
+      纸张、撕边和胶带全部由 CSS 绘制；图表只在需要时加载。
+    </p>
+  </section>
+
+  <section class="section section--tight container" aria-labelledby="contact-title">
+    <div class="contact paper torn scrap scrap--tape" style="--tilt: -0.3deg">
+      <p class="kicker">Contact</p>
+      <h2 id="contact-title" class="contact__title">保持联系</h2>
+      <p class="contact__text">
+        邮件是最可靠的找到我的方式。也可以从下面这些地方看到我在做什么。
+      </p>
+      <a class="contact__mail" href={`mailto:${site.email}`}>{site.email}</a>
+      <ul class="contact__socials">
+        {
+          site.socials.map((item) => (
+            <li>
+              <a href={item.href} class="tag">
+                <Icon name={item.icon} size={14} />
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-hero {
+    padding-block: clamp(3rem, 7vw, 5.5rem) clamp(2rem, 4vw, 3rem);
+  }
+
+  .about-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: center;
+  }
+
+  .about-hero__title {
+    margin-top: 1rem;
+    font-size: clamp(2.6rem, 6.5vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .about-hero__name {
+    position: relative;
+    color: var(--blue-strong);
+    overflow-wrap: anywhere;
+  }
+
+  .about-hero__name::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.05em;
+    height: 0.1em;
+    background: var(--clay);
+    opacity: 0.6;
+    transform: rotate(-1deg);
+  }
+
+  .about-hero__lede {
+    max-width: 34rem;
+    margin-top: 1.5rem;
+    color: var(--ink-3);
+    font-size: 1.02rem;
+    line-height: 1.9;
+    text-wrap: pretty;
+  }
+
+  .about-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.8rem;
+  }
+
+  .about-hero__aside {
+    position: relative;
+    justify-self: center;
+  }
+
+  .avatar {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(10rem, 20vw, 14rem);
+    aspect-ratio: 4 / 5;
+    background: var(--blue);
+    color: var(--paper-raised);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .avatar__letter {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 9vw, 6.5rem);
+    line-height: 1;
+  }
+
+  .avatar--image {
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: var(--paper-sunk);
+  }
+
+  .avatar__caption {
+    position: absolute;
+    bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  .about-hero__tape {
+    position: absolute;
+    top: -0.7rem;
+    left: 50%;
+    width: 6rem;
+    height: 1.5rem;
+    transform: translateX(-50%) rotate(-4deg);
+    background: var(--tape);
+    clip-path: polygon(2% 0, 98% 5%, 100% 92%, 4% 100%);
+  }
+
+  .about-stamp {
+    position: absolute;
+    right: -1.2rem;
+    bottom: -1.2rem;
+    background: var(--paper-raised);
+  }
+
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: clamp(1.6rem, 3vw, 2.4rem);
+  }
+
+  .section-head__title {
+    margin-top: 0.6rem;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    letter-spacing: -0.03em;
+  }
+
+  .now-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2.5vw, 1.6rem);
+  }
+
+  .now-card {
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--paper-raised);
+  }
+
+  .now-card__label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: var(--blue-strong);
+  }
+
+  .now-card h3 {
+    margin-top: 0.5rem;
+    font-size: 1.25rem;
+  }
+
+  .now-card p {
+    margin-top: 0.55rem;
+    color: var(--ink-3);
+    font-size: 0.85rem;
+    line-height: 1.75;
+  }
+
+  .facets {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2.5vw, 1.6rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .facet {
+    padding: 1.3rem 1.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--paper-raised);
+  }
+
+  .facet__key {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--facet-ink);
+  }
+
+  .facet[data-tone='blue'] {
+    --facet-ink: var(--blue-strong);
+  }
+
+  .facet[data-tone='sage'] {
+    --facet-ink: var(--sage);
+  }
+
+  .facet[data-tone='clay'] {
+    --facet-ink: var(--clay);
+  }
+
+  .facet[data-tone='sand'] {
+    --facet-ink: var(--sand);
+  }
+
+  .facet h3 {
+    margin-top: 0.5rem;
+    font-size: 1.18rem;
+  }
+
+  .facet p {
+    margin-top: 0.45rem;
+    color: var(--ink-3);
+    font-size: 0.84rem;
+    line-height: 1.75;
+  }
+
+  .colophon {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .colophon__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0.3rem;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+
+  .colophon dt {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .colophon dd {
+    margin: 0;
+    font-size: 0.84rem;
+    text-align: right;
+  }
+
+  .colophon__note {
+    max-width: 40rem;
+    margin-top: 1.2rem;
+    color: var(--ink-3);
+    font-size: 0.82rem;
+    line-height: 1.85;
+  }
+
+  .contact {
+    max-width: 44rem;
+    margin-inline: auto;
+    padding: clamp(2rem, 5vw, 3.2rem);
+  }
+
+  .contact__title {
+    margin-top: 0.7rem;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+  }
+
+  .contact__text {
+    margin-top: 0.8rem;
+    color: var(--ink-3);
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .contact__mail {
+    display: inline-block;
+    margin-top: 1.2rem;
+    padding-bottom: 0.15rem;
+    border-bottom: 1px solid var(--blue);
+    color: var(--blue-strong);
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    text-decoration: none;
+  }
+
+  .contact__mail:hover {
+    color: var(--clay);
+    border-color: var(--clay);
+  }
+
+  .contact__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 1.4rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 900px) {
+    .about-hero__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about-hero__aside {
+      justify-self: start;
+    }
+
+    .now-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .facets {
+      grid-template-columns: 1fr;
+    }
+
+    .colophon {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .about-stamp {
+      display: none;
+    }
+  }
+</style>

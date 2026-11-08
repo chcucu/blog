@@ -1,0 +1,11 @@
+node_modules
+dist
+.astro
+.wrangler
+.pnpm-store
+.uploads
+.placeholder
+.DS_Store
+.env
+.env.*
+!.env.example

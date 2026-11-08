@@ -1,0 +1,214 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { categories, categoryLabel, languageLabel } from '../data/taxonomy';
+import { formatDateShort, getPosts, type Post } from '../lib/posts';
+import { site } from '../site.config';
+
+const posts = await getPosts();
+
+const groups = new Map<number, Post[]>();
+for (const post of posts) {
+  const year = post.data.date.getFullYear();
+  const list = groups.get(year) ?? [];
+  list.push(post);
+  groups.set(year, list);
+}
+
+const years = [...groups.entries()].sort((a, b) => b[0] - a[0]);
+const total = posts.length;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '归档',
+  url: new URL('/archive/', site.url).href,
+  description: '按年份排列的全部文章归档。',
+};
+---
+
+<BaseLayout title="归档" description="按年份排列的全部文章归档。" jsonLd={jsonLd}>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">档</span>
+    <div class="container">
+      <p class="kicker">Archive · 2024–2026</p>
+      <h1 class="masthead__title">归档</h1>
+      <p class="masthead__lede">
+        所有纸片按年份叠在这里。共 {total} 篇，跨越 {years.length} 年。
+        比起分类，时间更能说明一个人在想什么。
+      </p>
+      <p class="masthead__count">{total} Articles · {years.length} Years</p>
+    </div>
+  </section>
+
+  <div class="container archive">
+    {
+      years.map(([year, items]) => (
+        <section class="archive-year" aria-labelledby={`year-${year}`}>
+          <header class="archive-year__head">
+            <h2 id={`year-${year}`} class="archive-year__year">{year}</h2>
+            <span class="archive-year__count">{items.length} 篇</span>
+          </header>
+
+          <ol class="archive-list">
+            {items.map((post) => (
+              <li class="archive-item">
+                <time class="archive-item__date" datetime={post.data.date.toISOString()}>
+                  {formatDateShort(post.data.date, post.data.lang)}
+                </time>
+                <div class="archive-item__body">
+                  <a class="archive-item__title" href={`/blog/${post.id}/`}>
+                    {post.data.title}
+                  </a>
+                  <div class="archive-item__meta">
+                    <span class="chip" data-tone={categories[post.data.category].tone}>
+                      {categoryLabel(post.data.category)}
+                    </span>
+                    <span class="lang-tag">{languageLabel(post.data.lang)}</span>
+                  </div>
+                </div>
+                <span class="archive-item__arrow" aria-hidden="true">
+                  <Icon name="arrow-right" size={15} />
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+
+  <div class="container archive-foot">
+    <a class="btn btn--ghost" href="/blog/">
+      回到文章列表
+      <Icon name="arrow-right" size={15} />
+    </a>
+    <a class="arrow-link" href="/rss.xml">通过 RSS 订阅</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .archive {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .archive-year__head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .archive-year__year {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  .archive-year__count {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+  }
+
+  .archive-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .archive-item {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr) 2rem;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.05rem 0.5rem;
+    border-bottom: 1px dashed var(--rule-soft);
+    transition: background-color 0.25s var(--ease), padding-left 0.25s var(--ease);
+  }
+
+  .archive-item:hover {
+    background: color-mix(in srgb, var(--blue-wash) 40%, transparent);
+    padding-left: 0.9rem;
+  }
+
+  .archive-item__date {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+
+  .archive-item__body {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  .archive-item__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    line-height: 1.4;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .archive-item:hover .archive-item__title {
+    color: var(--blue-strong);
+  }
+
+  .archive-item__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .archive-item__arrow {
+    justify-self: end;
+    color: var(--ink-3);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .archive-item:hover .archive-item__arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .archive-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  @media (max-width: 620px) {
+    .archive-item {
+      grid-template-columns: 3.2rem minmax(0, 1fr);
+      gap: 0.8rem;
+      padding-block: 1rem;
+    }
+
+    .archive-item__arrow {
+      display: none;
+    }
+
+    .archive-item__body {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.3rem;
+    }
+  }
+</style>

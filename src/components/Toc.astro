@@ -1,0 +1,128 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+  label?: string;
+  compact?: boolean;
+}
+
+const { headings, label = '文章目录', compact = false } = Astro.props;
+const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+{
+  items.length > 1 && (
+    <nav class:list={['toc', { 'toc--compact': compact }]} aria-label={label}>
+      <p class="toc__title">本页目录</p>
+      <ol class="toc__list">
+        {items.map((heading) => (
+          <li class:list={['toc__item', `toc__item--h${heading.depth}`]}>
+            <a href={`#${heading.slug}`} data-toc-link={heading.slug}>
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    font-size: 0.78rem;
+    line-height: 1.55;
+  }
+
+  .toc__title {
+    margin-bottom: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .toc__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 1px solid var(--rule-soft);
+  }
+
+  .toc__item a {
+    position: relative;
+    display: block;
+    padding: 0.32rem 0 0.32rem 0.85rem;
+    color: var(--ink-3);
+    text-decoration: none;
+    transition: color 0.2s var(--ease);
+  }
+
+  .toc__item a::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0.3rem;
+    bottom: 0.3rem;
+    width: 2px;
+    background: var(--blue);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.25s var(--ease);
+  }
+
+  .toc__item a:hover {
+    color: var(--ink);
+  }
+
+  .toc__item a[data-active='true'] {
+    color: var(--blue-strong);
+  }
+
+  .toc__item a[data-active='true']::before {
+    transform: scaleY(1);
+  }
+
+  .toc__item--h3 a {
+    padding-left: 1.6rem;
+    font-size: 0.74rem;
+    opacity: 0.9;
+  }
+
+  .toc--compact .toc__item a {
+    padding-block: 0.45rem;
+  }
+</style>
+
+<script>
+  const headings = Array.from(
+    document.querySelectorAll<HTMLElement>('#article-body h2[id], #article-body h3[id]'),
+  );
+
+  if (headings.length) {
+    const setActive = (id: string) => {
+      document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]').forEach((link) => {
+        if (link.dataset.tocLink === id) {
+          link.setAttribute('data-active', 'true');
+        } else {
+          link.removeAttribute('data-active');
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) {
+          setActive(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-88px 0px -70% 0px', threshold: 0 },
+    );
+
+    headings.forEach((heading) => observer.observe(heading));
+  }
+</script>

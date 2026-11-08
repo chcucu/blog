@@ -1,0 +1,241 @@
+---
+import Icon from './Icon.astro';
+---
+
+<div class="reading-progress" aria-hidden="true">
+  <span class="reading-progress__bar" data-progress></span>
+</div>
+
+<div class="reading-ui">
+  <details class="reading-settings">
+    <summary aria-label="阅读设置" title="阅读设置">
+      <span aria-hidden="true">Aa</span>
+    </summary>
+    <div class="reading-settings__panel">
+      <p class="reading-settings__title">正文字号</p>
+      <div class="reading-settings__group" role="group" aria-label="正文字号">
+        <button type="button" data-size="sm" aria-pressed="false">小</button>
+        <button type="button" data-size="md" aria-pressed="true">标准</button>
+        <button type="button" data-size="lg" aria-pressed="false">大</button>
+      </div>
+    </div>
+  </details>
+
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部" title="回到顶部" hidden>
+    <Icon name="arrow-up" size={18} />
+  </button>
+</div>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    height: 3px;
+    pointer-events: none;
+  }
+
+  .reading-progress__bar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--blue);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.1s linear;
+  }
+
+  .reading-ui {
+    position: fixed;
+    right: 1.2rem;
+    bottom: 1.2rem;
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .reading-settings {
+    position: relative;
+  }
+
+  .reading-settings summary {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper-raised);
+    color: var(--ink-2);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    cursor: pointer;
+    list-style: none;
+    box-shadow: var(--shadow);
+    transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
+  }
+
+  .reading-settings summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .reading-settings summary:hover {
+    color: var(--blue-strong);
+    border-color: var(--blue);
+  }
+
+  .reading-settings__panel {
+    position: absolute;
+    right: 0;
+    bottom: 3.2rem;
+    width: 11rem;
+    padding: 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .reading-settings__title {
+    margin-bottom: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .reading-settings__group {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .reading-settings__group button {
+    flex: 1;
+    padding: 0.4rem 0;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: transparent;
+    font-size: 0.78rem;
+    transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+
+  .reading-settings__group button[aria-pressed='true'] {
+    border-color: var(--blue);
+    background: var(--blue-wash);
+    color: var(--blue-strong);
+  }
+
+  .to-top {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper-raised);
+    color: var(--ink-2);
+    box-shadow: var(--shadow);
+    transition: color 0.25s var(--ease), border-color 0.25s var(--ease),
+      transform 0.25s var(--ease);
+  }
+
+  .to-top:hover {
+    color: var(--blue-strong);
+    border-color: var(--blue);
+    transform: translateY(-2px);
+  }
+
+  .to-top[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 620px) {
+    .reading-ui {
+      right: 0.8rem;
+      bottom: 0.8rem;
+    }
+  }
+</style>
+
+<script>
+  const body = document.querySelector<HTMLElement>('[data-reading-body]');
+  const progress = document.querySelector<HTMLElement>('[data-progress]');
+  const toTop = document.querySelector<HTMLButtonElement>('[data-to-top]');
+  const sizeButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-size]'),
+  );
+
+  const applySize = (size: string, persist = true) => {
+    if (!body) return;
+    body.dataset.readingSize = size;
+    sizeButtons.forEach((button) => {
+      button.setAttribute('aria-pressed', button.dataset.size === size ? 'true' : 'false');
+    });
+    if (persist) {
+      try {
+        localStorage.setItem('reading-size', size);
+      } catch {
+        /* 忽略 */
+      }
+    }
+  };
+
+  let savedSize = 'md';
+  try {
+    savedSize = localStorage.getItem('reading-size') ?? 'md';
+  } catch {
+    savedSize = 'md';
+  }
+  applySize(savedSize, false);
+
+  sizeButtons.forEach((button) => {
+    button.addEventListener('click', () => applySize(button.dataset.size ?? 'md'));
+  });
+
+  let ticking = false;
+
+  const update = () => {
+    const root = document.documentElement;
+    const max = root.scrollHeight - root.clientHeight;
+    const ratio = max > 0 ? Math.min(1, Math.max(0, root.scrollTop / max)) : 0;
+
+    if (progress) {
+      progress.style.transform = `scaleX(${ratio})`;
+    }
+
+    if (toTop) {
+      toTop.hidden = root.scrollTop < 700;
+    }
+
+    ticking = false;
+  };
+
+  const onScroll = () => {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+
+  toTop?.addEventListener('click', () => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      const details = document.querySelector<HTMLDetailsElement>('.reading-settings[open]');
+      details?.removeAttribute('open');
+      details?.querySelector<HTMLElement>('summary')?.focus();
+    }
+  });
+</script>

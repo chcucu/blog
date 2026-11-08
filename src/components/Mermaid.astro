@@ -1,0 +1,95 @@
+---
+// Mermaid 只在页面里确实存在图表时才动态加载，避免给其他文章增加负担。
+---
+
+<script>
+  (() => {
+    const candidates = Array.from(document.querySelectorAll<HTMLPreElement>('pre')).filter(
+      (pre) => {
+        if (pre.dataset.language === 'mermaid') return true;
+        const code = pre.querySelector('code');
+        return Boolean(code?.className.split(' ').includes('language-mermaid'));
+      },
+    );
+
+    if (candidates.length === 0) return;
+
+    const blocks = candidates.map((pre) => {
+      const source = pre.textContent ?? '';
+      const block = document.createElement('div');
+      block.className = 'mermaid-block';
+      block.dataset.source = source;
+      block.dataset.rendered = 'false';
+      block.textContent = source;
+      pre.replaceWith(block);
+      return block;
+    });
+
+    let counter = 0;
+    let rendering = false;
+    let timer = 0;
+
+    const renderAll = async () => {
+      if (rendering) return;
+      rendering = true;
+
+      try {
+        const { default: mermaid } = await import('mermaid');
+        const styles = getComputedStyle(document.documentElement);
+        const color = (name: string, fallback: string) =>
+          styles.getPropertyValue(name).trim() || fallback;
+
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: 'base',
+          fontFamily:
+            "'Inter Variable', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif",
+          themeVariables: {
+            background: color('--paper-raised', '#fbf8f1'),
+            mainBkg: color('--paper-raised', '#fbf8f1'),
+            primaryColor: color('--blue-wash', '#dde8f0'),
+            primaryTextColor: color('--ink', '#14243a'),
+            primaryBorderColor: color('--blue', '#35638f'),
+            secondaryColor: color('--paper-sunk', '#eae3d5'),
+            tertiaryColor: color('--paper-raised', '#fbf8f1'),
+            lineColor: color('--ink-3', '#5d6f84'),
+            textColor: color('--ink', '#14243a'),
+            nodeBorder: color('--blue', '#35638f'),
+            clusterBkg: color('--paper-sunk', '#eae3d5'),
+            clusterBorder: color('--rule', '#c9c0ae'),
+            titleColor: color('--ink', '#14243a'),
+            edgeLabelBackground: color('--paper-raised', '#fbf8f1'),
+          },
+          flowchart: {
+            curve: 'basis',
+            htmlLabels: true,
+          },
+        });
+
+        for (const block of blocks) {
+          const source = block.dataset.source ?? '';
+          try {
+            const { svg } = await mermaid.render(`mermaid-svg-${++counter}`, source);
+            block.innerHTML = svg;
+            block.dataset.rendered = 'true';
+          } catch {
+            block.textContent = source;
+            block.dataset.rendered = 'false';
+          }
+        }
+      } finally {
+        rendering = false;
+      }
+    };
+
+    void renderAll();
+
+    document.addEventListener('themechange', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        void renderAll();
+      }, 260);
+    });
+  })();
+</script>

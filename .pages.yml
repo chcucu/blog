@@ -1,0 +1,211 @@
+# Pages CMS 配置：在 https://app.pagescms.org 连接 GitHub 仓库即可使用
+# 文档：https://pagescms.org/docs/configuration/
+media:
+  input: public/uploads
+  output: /uploads
+
+content:
+  - name: posts
+    label: 文章
+    type: collection
+    path: src/content/posts
+    subfolders: true
+    format: yaml-frontmatter
+    filename:
+      template: "{primary}.md"
+      field: create
+    view:
+      primary: title
+      sort: date
+      order: desc
+    fields:
+      - name: title
+        label: 标题
+        type: string
+        required: true
+      - name: description
+        label: 摘要
+        type: text
+        required: true
+        description: 会出现在列表、搜索和社交分享卡片里，建议 60–120 字。
+        options:
+          maxlength: 220
+      - name: date
+        label: 日期
+        type: date
+        required: true
+      - name: updated
+        label: 更新日期
+        type: date
+      - name: lang
+        label: 语言
+        type: select
+        required: true
+        options:
+          values:
+            - name: zh
+              label: 中文
+            - name: en
+              label: English
+      - name: category
+        label: 分类
+        type: select
+        required: true
+        options:
+          values:
+            - name: tech
+              label: 技术
+            - name: tutorial
+              label: 教程
+            - name: essay
+              label: 随笔
+            - name: life
+              label: 生活
+      - name: tags
+        label: 标签
+        type: string
+        list: true
+        description: 每个标签一条，建议 2–5 个。
+      - name: featured
+        label: 精选
+        type: boolean
+        description: 开启后会出现在首页最显眼的位置。
+      - name: draft
+        label: 草稿
+        type: boolean
+        description: 草稿不会出现在站点和 RSS 中。
+      - name: cover
+        label: 封面图
+        type: image
+        description: 可选。留空会自动生成纸感艺术封面。
+      - name: coverWord
+        label: 封面艺术字
+        type: string
+        description: 可选。显示在封面底部的文字，默认取第一个标签。
+      - name: body
+        label: 正文
+        type: rich-text
+
+  - name: projects
+    label: 项目
+    type: collection
+    path: src/content/projects
+    format: yaml-frontmatter
+    filename:
+      template: "{primary}.md"
+      field: create
+    view:
+      primary: title
+      sort: order
+      order: asc
+    fields:
+      - name: title
+        label: 项目名称
+        type: string
+        required: true
+      - name: description
+        label: 一句话介绍
+        type: text
+        required: true
+      - name: year
+        label: 年份
+        type: number
+        required: true
+      - name: role
+        label: 角色
+        type: string
+        required: true
+        description: 例如「设计 / 开发」「作者」。
+      - name: stack
+        label: 技术栈
+        type: string
+        list: true
+      - name: status
+        label: 状态
+        type: select
+        options:
+          values:
+            - 进行中
+            - 已完成
+            - 持续维护
+            - 原型
+      - name: repo
+        label: 源码地址
+        type: string
+        description: 留空则不显示「源码」按钮。
+      - name: demo
+        label: 演示地址
+        type: string
+        description: 留空则不显示「在线演示」按钮。
+      - name: order
+        label: 排序
+        type: number
+        description: 数字越小越靠前，默认 99。
+      - name: sample
+        label: 示例项目
+        type: boolean
+        description: 开启后卡片上会显示「示例项目」标记。
+      - name: body
+        label: 正文
+        type: rich-text
+
+  - name: life
+    label: 生活碎片
+    type: collection
+    path: src/content/life
+    format: yaml-frontmatter
+    filename:
+      template: "{primary}.md"
+      field: create
+    view:
+      primary: title
+      sort: date
+      order: desc
+    fields:
+      - name: title
+        label: 标题
+        type: string
+        required: true
+      - name: date
+        label: 日期
+        type: date
+        required: true
+      - name: location
+        label: 地点
+        type: string
+      - name: kind
+        label: 类型
+        type: select
+        options:
+          values:
+            - name: note
+              label: 随手记
+            - name: photo
+              label: 照片
+            - name: link
+              label: 链接
+      - name: tone
+        label: 纸片颜色
+        type: select
+        options:
+          values:
+            - name: blue
+              label: 蓝
+            - name: clay
+              label: 陶土
+            - name: sage
+              label: 灰绿
+            - name: sand
+              label: 沙
+            - name: ink
+              label: 墨
+      - name: description
+        label: 一句话
+        type: text
+        required: true
+      - name: link
+        label: 相关链接
+        type: string
+      - name: body
+        label: 正文
+        type: rich-text

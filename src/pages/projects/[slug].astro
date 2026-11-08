@@ -1,0 +1,341 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { getProjects, projectUrl, type Project } from '../../lib/posts';
+import { site } from '../../site.config';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const projects = await getProjects();
+const index = projects.findIndex((item) => item.id === project.id);
+const next = projects.length > 1 ? projects[(index + 1) % projects.length] : undefined;
+
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.data.title,
+  description: project.data.description,
+  dateCreated: String(project.data.year),
+  url: canonical,
+  author: {
+    '@type': 'Person',
+    name: site.author,
+    alternateName: site.handle,
+    url: site.url,
+  },
+  keywords: project.data.stack.join(', '),
+};
+---
+
+<BaseLayout
+  title={project.data.title}
+  description={project.data.description}
+  type="article"
+  jsonLd={jsonLd}
+>
+  <article>
+    <header class="project-head container">
+      <a class="back-link" href="/projects/">
+        <span aria-hidden="true">←</span>
+        全部项目
+      </a>
+
+      <div class="project-head__meta">
+        <span class="mono">{project.data.year}</span>
+        <span class="project-head__sep" aria-hidden="true"></span>
+        <span class="project-head__status">{project.data.status}</span>
+        {project.data.sample && <span class="project-head__sample">示例项目</span>}
+      </div>
+
+      <h1 class="project-head__title">{project.data.title}</h1>
+      <p class="project-head__desc">{project.data.description}</p>
+
+      <ul class="project-head__stack" aria-label="技术栈">
+        {project.data.stack.map((item) => <li>{item}</li>)}
+      </ul>
+
+      {
+        (project.data.repo || project.data.demo) && (
+          <div class="project-head__links">
+            {project.data.repo && (
+              <a class="btn btn--ghost" href={project.data.repo} target="_blank" rel="noopener noreferrer">
+                <Icon name="github" size={15} />
+                源码
+                <Icon name="external" size={13} />
+              </a>
+            )}
+            {project.data.demo && (
+              <a class="btn" href={project.data.demo} target="_blank" rel="noopener noreferrer">
+                在线演示
+                <Icon name="external" size={13} />
+              </a>
+            )}
+          </div>
+        )
+      }
+    </header>
+
+    <div class="project-layout container">
+      <div class="prose project-body">
+        <Content />
+      </div>
+
+      <aside class="facts paper torn" aria-label="项目信息">
+        <p class="kicker">Facts</p>
+        <dl>
+          <div>
+            <dt>年份</dt>
+            <dd>{project.data.year}</dd>
+          </div>
+          <div>
+            <dt>角色</dt>
+            <dd>{project.data.role}</dd>
+          </div>
+          <div>
+            <dt>状态</dt>
+            <dd>{project.data.status}</dd>
+          </div>
+          <div>
+            <dt>技术栈</dt>
+            <dd>
+              <ul class="facts__stack">
+                {project.data.stack.map((item) => <li>{item}</li>)}
+              </ul>
+            </dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+
+    {
+      next && (
+        <nav class="project-next container" aria-label="下一个项目">
+          <a class="project-next__link" href={projectUrl(next)}>
+            <span class="project-next__label">下一个项目</span>
+            <span class="project-next__title">{next.data.title}</span>
+            <span class="project-next__arrow" aria-hidden="true">
+              <Icon name="arrow-right" size={18} />
+            </span>
+          </a>
+        </nav>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<style>
+  .project-head {
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+    max-width: 58rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    color: var(--blue-strong);
+  }
+
+  .project-head__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+  }
+
+  .project-head__sep {
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+
+  .project-head__sample {
+    padding: 0.12rem 0.45rem;
+    background: var(--clay-wash);
+    color: var(--clay);
+    font-size: 0.58rem;
+  }
+
+  .project-head__title {
+    margin-top: 0.8rem;
+    font-size: clamp(2.4rem, 6vw, 4.6rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .project-head__desc {
+    max-width: 40rem;
+    margin-top: 1.2rem;
+    color: var(--ink-3);
+    font-size: clamp(0.98rem, 1.5vw, 1.08rem);
+    line-height: 1.85;
+    text-wrap: pretty;
+  }
+
+  .project-head__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 1.3rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-head__stack li {
+    padding: 0.12rem 0.45rem;
+    background: var(--blue-wash);
+    color: var(--blue-strong);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+  }
+
+  .project-head__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+  }
+
+  .project-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 44rem) 15rem;
+    justify-content: space-between;
+    gap: clamp(2rem, 5vw, 4rem);
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    align-items: start;
+  }
+
+  .project-body {
+    min-width: 0;
+  }
+
+  .facts {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    padding: 1.3rem 1.4rem;
+  }
+
+  .facts dl {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin: 0.9rem 0 0;
+  }
+
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .facts dd {
+    margin: 0.2rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .facts__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .facts__stack li {
+    padding: 0.08rem 0.35rem;
+    border: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+  }
+
+  .project-next {
+    max-width: 54rem;
+    margin-top: clamp(3rem, 7vw, 5rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .project-next__link {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s var(--ease), border-color 0.3s var(--ease);
+  }
+
+  .project-next__link:hover {
+    transform: translateY(-3px);
+    border-color: var(--blue);
+  }
+
+  .project-next__label {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .project-next__title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+  }
+
+  .project-next__arrow {
+    position: absolute;
+    right: 1.4rem;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 900px) {
+    .project-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .facts {
+      position: static;
+      order: -1;
+      max-width: 24rem;
+    }
+  }
+</style>

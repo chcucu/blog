@@ -1,0 +1,204 @@
+---
+import { categories } from '../data/taxonomy';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  variant?: 'card' | 'featured';
+  index?: number;
+}
+
+const { post, variant = 'card', index } = Astro.props;
+const category = categories[post.data.category];
+const word = post.data.coverWord ?? post.data.tags[0] ?? category.label;
+const ghost = category.label.slice(0, 1);
+const number = typeof index === 'number' ? String(index + 1).padStart(2, '0') : '';
+---
+
+{
+  post.data.cover ? (
+    <img
+      class="cover-image"
+      src={post.data.cover}
+      alt=""
+      width="1200"
+      height="900"
+      loading={variant === 'featured' ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+  ) : (
+    <div
+      class:list={['cover', { 'cover--featured': variant === 'featured' }]}
+      data-tone={category.tone}
+      aria-hidden="true"
+    >
+      <span class="cover__ghost">{ghost}</span>
+      <span class="cover__shape"></span>
+      {variant === 'featured' && <span class="cover__mark">Paper Scraps</span>}
+      {number && <span class="cover__index">{number}</span>}
+      <span class="cover__strip"></span>
+      <span class="cover__word">{word}</span>
+      {variant === 'featured' && (
+        <span class="cover__label">
+          {category.label} / {category.labelEn}
+        </span>
+      )}
+    </div>
+  )
+}
+
+<style>
+  .cover,
+  .cover-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.55s var(--ease);
+  }
+
+  .cover-image {
+    object-fit: cover;
+  }
+
+  .cover {
+    position: relative;
+    overflow: hidden;
+    background: var(--cover-bg);
+  }
+
+  .cover[data-tone='blue'] {
+    --cover-bg: var(--blue-wash);
+    --cover-ink: var(--blue-strong);
+    --cover-accent: var(--blue);
+  }
+
+  .cover[data-tone='sage'] {
+    --cover-bg: var(--sage-wash);
+    --cover-ink: var(--sage);
+    --cover-accent: var(--sage);
+  }
+
+  .cover[data-tone='clay'] {
+    --cover-bg: var(--clay-wash);
+    --cover-ink: var(--clay);
+    --cover-accent: var(--clay);
+  }
+
+  .cover[data-tone='sand'] {
+    --cover-bg: var(--sand-wash);
+    --cover-ink: var(--sand);
+    --cover-accent: var(--sand);
+  }
+
+  .cover__ghost {
+    position: absolute;
+    top: -0.2em;
+    right: -0.08em;
+    font-family: var(--font-display);
+    font-size: clamp(7rem, 13vw, 10rem);
+    line-height: 0.8;
+    color: var(--cover-ink);
+    opacity: 0.09;
+    pointer-events: none;
+  }
+
+  .cover--featured .cover__ghost {
+    font-size: clamp(9rem, 18vw, 15rem);
+  }
+
+  .cover__shape {
+    position: absolute;
+    top: -22%;
+    right: -12%;
+    width: 62%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--cover-accent) 20%, transparent);
+  }
+
+  .cover__mark {
+    position: absolute;
+    top: 1rem;
+    left: 1.15rem;
+    z-index: 2;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cover-ink);
+    opacity: 0.8;
+  }
+
+  .cover__index {
+    position: absolute;
+    top: 0.75rem;
+    right: 1.1rem;
+    z-index: 2;
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    line-height: 1;
+    color: var(--cover-ink);
+    opacity: 0.22;
+  }
+
+  .cover__strip {
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    bottom: -2%;
+    height: 47%;
+    background: var(--paper-raised);
+    clip-path: polygon(
+      0 8%, 5% 2%, 10% 6%, 16% 1%, 22% 5%, 28% 0, 34% 4%, 40% 1%, 46% 6%,
+      52% 2%, 58% 5%, 64% 0, 70% 4%, 76% 1%, 82% 6%, 88% 2%, 94% 5%,
+      100% 1%, 100% 100%, 0 100%
+    );
+  }
+
+  .cover__word {
+    position: absolute;
+    left: 1.1rem;
+    bottom: 1.15rem;
+    z-index: 2;
+    max-width: 76%;
+    font-family: var(--font-display);
+    font-size: clamp(1.65rem, 3.6vw, 2.8rem);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .cover--featured .cover__word {
+    font-size: clamp(2.6rem, 5vw, 4.6rem);
+    max-width: 82%;
+  }
+
+  .cover__label {
+    position: absolute;
+    right: 1.1rem;
+    bottom: 0.85rem;
+    z-index: 2;
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 520px) {
+    .cover__word {
+      font-size: 1.8rem;
+    }
+
+    .cover--featured .cover__word {
+      font-size: 2.8rem;
+    }
+
+    .cover__label {
+      display: none;
+    }
+  }
+</style>

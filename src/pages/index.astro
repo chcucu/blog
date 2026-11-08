@@ -1,0 +1,207 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import PostCard from '../components/PostCard.astro';
+import FeaturedPost from '../components/FeaturedPost.astro';
+import { categoryLabel } from '../data/taxonomy';
+import {
+  categoryCounts,
+  formatDateShort,
+  getLifeNotes,
+  getPosts,
+  getProjects,
+} from '../lib/posts';
+import { site } from '../site.config';
+
+const posts = await getPosts();
+const projects = await getProjects();
+const notes = await getLifeNotes();
+
+const featured = posts.find((post) => post.data.featured) ?? posts[0];
+const gridPosts = posts.filter((post) => post.id !== featured?.id).slice(0, 6);
+const cats = categoryCounts(posts);
+const zhCount = posts.filter((post) => post.data.lang === 'zh').length;
+const enCount = posts.length - zhCount;
+const issue = String(posts.length).padStart(2, '0');
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: site.name,
+  alternateName: site.nameEn,
+  url: site.url,
+  description: site.description,
+  inLanguage: 'zh-CN',
+  author: {
+    '@type': 'Person',
+    name: site.author,
+    alternateName: site.handle,
+    url: site.url,
+    description: site.descriptionEn,
+  },
+};
+---
+
+<BaseLayout jsonLd={jsonLd}>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">碎</span>
+    <div class="container">
+      <p class="kicker">Paper Scraps · Issue {issue}</p>
+      <h1 class="masthead__title">把想法，<em>剪成纸片</em>。</h1>
+      <p class="masthead__lede">
+        十年之约服主、Paper 插件开发、Web、摄影、音乐、影像。
+        多重身份被剪碎、编号，贴在同一张桌子上。
+      </p>
+      <p class="masthead__roles">
+        {site.roles.join(' · ')}
+      </p>
+      <p class="masthead__count">
+        {posts.length} Articles · 中文 {zhCount} / EN {enCount}
+      </p>
+
+      <form class="journal-search" action="/search/" method="get" role="search">
+        <label class="visually-hidden" for="home-search">搜索文章</label>
+        <span class="journal-search__icon" aria-hidden="true">
+          <Icon name="search" size={18} />
+        </span>
+        <input
+          id="home-search"
+          type="search"
+          name="q"
+          placeholder="搜索文章、标签或关键词…"
+          autocomplete="off"
+        />
+        <button type="submit" aria-label="搜索">
+          <Icon name="arrow-right" size={17} />
+        </button>
+      </form>
+
+      <nav class="pill-nav masthead__pills" aria-label="内容分类">
+        <a class="pill" href="/blog/">全部 <span class="pill__count">{posts.length}</span></a>
+        {
+          cats.map((cat) => (
+            <a class="pill" href={`/categories/${cat.key}/`}>
+              {categoryLabel(cat.key)}
+              <span class="pill__count">{cat.count}</span>
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+  </section>
+
+  {
+    featured && (
+      <section class="container home-featured" aria-label="精选文章">
+        <FeaturedPost post={featured} />
+      </section>
+    )
+  }
+
+  {
+    gridPosts.length > 0 && (
+      <section class="container journal-section" aria-labelledby="latest-title">
+        <div class="journal-meta">
+          <h2 id="latest-title" class="journal-meta__title">最新纸片</h2>
+          <span class="journal-meta__note">按时间叠放 · 共 {posts.length} 篇</span>
+        </div>
+
+        <div class="post-grid">
+          {gridPosts.map((post, index) => <PostCard post={post} index={index + 1} />)}
+        </div>
+
+        <div class="journal-foot">
+          <a class="btn btn--ghost" href="/blog/">
+            查看全部 {posts.length} 篇
+            <Icon name="arrow-right" size={15} />
+          </a>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="container more-section" aria-label="项目与生活">
+    <div class="more-grid">
+      <div class="more-col">
+        <div class="more-head">
+          <h2>在做的事</h2>
+          <a class="arrow-link" href="/projects/">
+            全部项目
+            <Icon name="arrow-right" size={15} />
+          </a>
+        </div>
+        <ul class="more-list">
+          {
+            projects.slice(0, 4).map((project) => (
+              <li>
+                <a href={`/projects/${project.id}/`}>
+                  <span class="more-list__year">{project.data.year}</span>
+                  <span class="more-list__title">{project.data.title}</span>
+                  <span class="more-list__meta">{project.data.status}</span>
+                  <span class="more-list__arrow" aria-hidden="true">
+                    <Icon name="arrow-right" size={15} />
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="more-col">
+        <div class="more-head">
+          <h2>生活碎片</h2>
+          <a class="arrow-link" href="/life/">
+            去翻翻
+            <Icon name="arrow-right" size={15} />
+          </a>
+        </div>
+        <ul class="more-list">
+          {
+            notes.slice(0, 4).map((note) => (
+              <li>
+                <div class="more-list__row">
+                  <span class="more-list__year">{formatDateShort(note.data.date, 'zh')}</span>
+                  <span class="more-list__title">{note.data.title}</span>
+                  <span class="more-list__meta">{note.data.location ?? '碎片'}</span>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .home-featured {
+    margin-bottom: clamp(3.5rem, 7vw, 5.5rem);
+  }
+
+  .journal-section {
+    padding-top: 0;
+  }
+
+  .more-section {
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+    padding-top: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  @media (max-width: 700px) {
+    .masthead__pills {
+      justify-content: flex-start;
+    }
+
+    .masthead__title {
+      font-size: clamp(2.35rem, 11vw, 3.3rem);
+    }
+
+    .masthead__roles {
+      font-size: 0.66rem;
+      letter-spacing: 0.05em;
+      line-height: 1.7;
+    }
+  }
+</style>

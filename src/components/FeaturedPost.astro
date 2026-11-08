@@ -1,0 +1,196 @@
+---
+import Icon from './Icon.astro';
+import PostCover from './PostCover.astro';
+import { categories, categoryLabel, languageLabel } from '../data/taxonomy';
+import { formatDate, postUrl, type Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const category = categories[post.data.category];
+const url = postUrl(post);
+---
+
+<article class="featured-post">
+  <div class="featured-post__media">
+    <PostCover post={post} variant="featured" index={0} />
+  </div>
+
+  <div class="featured-post__body">
+    <p class="featured-post__eyebrow">
+      <span class="featured-post__dot" aria-hidden="true"></span>
+      精选 / Featured
+    </p>
+
+    <div class="featured-post__meta">
+      <a class="chip" data-tone={category.tone} href={`/categories/${post.data.category}/`}>
+        {categoryLabel(post.data.category)}
+      </a>
+      <span class="lang-tag">{languageLabel(post.data.lang)}</span>
+    </div>
+
+    <h2 class="featured-post__title">
+      <a href={url}>{post.data.title}</a>
+    </h2>
+
+    <p class="featured-post__desc">{post.data.description}</p>
+
+    <div class="featured-post__foot">
+      <time datetime={post.data.date.toISOString()}>
+        {formatDate(post.data.date, post.data.lang)}
+      </time>
+      <span class="featured-post__cta" aria-hidden="true">
+        阅读全文
+        <Icon name="arrow-right" size={16} />
+      </span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .featured-post {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    min-height: 30rem;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--paper-raised);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .featured-post__media {
+    position: relative;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .featured-post:hover :global(.cover),
+  .featured-post:hover :global(.cover-image) {
+    transform: scale(1.02);
+  }
+
+  .featured-post__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.9rem;
+    padding: clamp(1.6rem, 4vw, 3.4rem);
+    border-left: 1px solid var(--rule-soft);
+  }
+
+  .featured-post__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .featured-post__dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--clay);
+  }
+
+  .featured-post__meta {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .featured-post__meta .chip {
+    text-decoration: none;
+  }
+
+  .featured-post__title {
+    font-size: clamp(1.9rem, 3.6vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+
+  .featured-post__title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .featured-post__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .featured-post__title a:focus-visible {
+    outline: none;
+  }
+
+  .featured-post__title a:focus-visible::after {
+    outline: 2px solid var(--blue);
+    outline-offset: -4px;
+  }
+
+  .featured-post:hover .featured-post__title a {
+    color: var(--blue-strong);
+  }
+
+  .featured-post__desc {
+    max-width: 32rem;
+    color: var(--ink-3);
+    font-size: 0.92rem;
+    line-height: 1.8;
+    text-wrap: pretty;
+  }
+
+  .featured-post__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.6rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--rule-soft);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+  }
+
+  .featured-post__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--ink-2);
+    transition: color 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .featured-post:hover .featured-post__cta {
+    color: var(--blue-strong);
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 900px) {
+    .featured-post {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+
+    .featured-post__media {
+      aspect-ratio: 4 / 3;
+    }
+
+    .featured-post__body {
+      border-left: 0;
+      border-top: 1px solid var(--rule-soft);
+    }
+  }
+</style>

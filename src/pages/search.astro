@@ -1,0 +1,584 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { tagToSlug } from '../data/taxonomy';
+import { getPosts, tagCounts } from '../lib/posts';
+import { site } from '../site.config';
+
+const posts = await getPosts();
+const tags = tagCounts(posts).slice(0, 8);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SearchAction',
+  target: `${site.url}/search/?q={search_term_string}`,
+  'query-input': 'required name=search_term_string',
+};
+---
+
+<BaseLayout
+  title="搜索"
+  description="搜索全部文章：支持中文与英文，按标题、标签和正文匹配。"
+  noIndex
+  jsonLd={jsonLd}
+>
+  <section class="search-head container">
+    <p class="kicker">Search · Index</p>
+    <h1 class="search-head__title">找一张纸片</h1>
+    <p class="search-head__lede">
+      输入标题、标签或正文里的词。中文按二字切分，英文按单词匹配；
+      结果越靠前，说明它越可能包含你想找的东西。
+    </p>
+
+    <form
+      class="search-form"
+      role="search"
+      action="/search/"
+      method="get"
+      data-search-form
+    >
+      <label class="visually-hidden" for="search-input">搜索文章</label>
+      <span class="search-form__icon" aria-hidden="true"><Icon name="search" size={20} /></span>
+      <input
+        id="search-input"
+        class="search-form__input"
+        type="search"
+        name="q"
+        placeholder="试试「撕纸」「Astro」「搜索」…"
+        autocomplete="off"
+        spellcheck="false"
+        data-search-input
+      />
+      <kbd class="search-form__kbd" aria-hidden="true">/</kbd>
+      <button class="search-form__submit" type="submit" aria-label="搜索">
+        <Icon name="arrow-right" size={18} />
+      </button>
+    </form>
+
+    <p class="search-status" role="status" aria-live="polite" data-search-status>
+      输入关键词开始搜索
+    </p>
+  </section>
+
+  <section class="container search-body" aria-label="搜索结果">
+    <div class="search-results" data-search-results></div>
+
+    <div class="search-suggestions" data-search-suggestions>
+      <p class="search-suggestions__title">或者从这些标签开始</p>
+      <ul>
+        {
+          tags.map((item) => (
+            <li>
+              <a class="tag" href={`/tags/${tagToSlug(item.tag)}/`}>#{item.tag}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <noscript>
+      <p class="search-noscript">
+        搜索需要 JavaScript。你也可以直接浏览 <a href="/archive/">归档</a> 或
+        <a href="/blog/">全部文章</a>。
+      </p>
+    </noscript>
+  </section>
+</BaseLayout>
+
+<style>
+  .search-head {
+    padding-block: clamp(3rem, 7vw, 5.5rem) clamp(1.5rem, 3vw, 2rem);
+    max-width: 52rem;
+  }
+
+  .search-head__title {
+    margin-top: 1rem;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+  }
+
+  .search-head__lede {
+    max-width: 36rem;
+    margin-top: 1.2rem;
+    color: var(--ink-3);
+    font-size: 1rem;
+    line-height: 1.85;
+    text-wrap: pretty;
+  }
+
+  .search-form {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 2rem;
+    padding: 0.35rem 0.6rem 0.35rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    box-shadow: var(--shadow);
+    transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+  }
+
+  .search-form:focus-within {
+    border-color: var(--blue);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .search-form__icon {
+    display: inline-flex;
+    color: var(--ink-3);
+  }
+
+  .search-form__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.8rem 0;
+    border: 0;
+    background: transparent;
+    font-size: 1.05rem;
+    outline: none;
+  }
+
+  .search-form__input::placeholder {
+    color: var(--ink-3);
+    opacity: 0.8;
+  }
+
+  .search-form__input::-webkit-search-cancel-button {
+    cursor: pointer;
+  }
+
+  .search-form__kbd {
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--paper-sunk);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 520px) {
+    .search-form__kbd {
+      display: none;
+    }
+  }
+
+  .search-form__submit {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    transition: transform 0.25s var(--ease), background-color 0.25s var(--ease),
+      border-color 0.25s var(--ease);
+  }
+
+  .search-form__submit:hover {
+    transform: translateX(2px);
+    background: var(--blue-strong);
+    border-color: var(--blue-strong);
+  }
+
+  .search-status {
+    margin-top: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-3);
+  }
+
+  .search-body {
+    padding-top: 1rem;
+    max-width: 52rem;
+  }
+
+  .search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .search-suggestions {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .search-suggestions[hidden] {
+    display: none;
+  }
+
+  .search-suggestions__title {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .search-suggestions ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.9rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-noscript {
+    margin-top: 2rem;
+    padding: 1.2rem;
+    border: 1px dashed var(--rule);
+    color: var(--ink-3);
+    font-size: 0.86rem;
+  }
+
+  .search-noscript a {
+    color: var(--blue-strong);
+  }
+</style>
+
+<script>
+  import { categories, categoryLabel, languageLabel } from '../data/taxonomy';
+
+  interface Doc {
+    slug: string;
+    title: string;
+    description: string;
+    date: string;
+    lang: 'zh' | 'en';
+    category: keyof typeof categories;
+    tags: string[];
+    body: string;
+  }
+
+  interface IndexedDoc extends Doc {
+    titleTokens: string[];
+    descTokens: string[];
+    tagTokens: string[];
+    bodyTokens: string[];
+  }
+
+  const input = document.querySelector<HTMLInputElement>('[data-search-input]');
+  const status = document.querySelector<HTMLElement>('[data-search-status]');
+  const resultsEl = document.querySelector<HTMLElement>('[data-search-results]');
+  const suggestions = document.querySelector<HTMLElement>('[data-search-suggestions]');
+
+  const indexUrl = '/search-index.json';
+  const cjkPattern = /[\u3400-\u9fff]/g;
+
+  const tokenize = (text: string) => {
+    const lower = text.toLowerCase();
+    const tokens: string[] = [];
+
+    const words = lower.match(/[a-z0-9][a-z0-9'’+-]*/g) ?? [];
+    tokens.push(...words);
+
+    const chars = Array.from(lower.replace(/[^\u3400-\u9fff]/g, ''));
+    if (chars.length === 1) tokens.push(chars[0]);
+    for (let i = 0; i < chars.length - 1; i += 1) {
+      tokens.push(chars[i] + chars[i + 1]);
+    }
+
+    return tokens.filter((token) => token.length > 0);
+  };
+
+  let docs: IndexedDoc[] = [];
+  let idf = new Map<string, number>();
+  let loading: Promise<void> | null = null;
+  let hasLoaded = false;
+
+  const loadIndex = () => {
+    if (loading) return loading;
+
+    loading = (async () => {
+      if (status) status.textContent = '正在准备索引…';
+      try {
+        const response = await fetch(indexUrl, { headers: { accept: 'application/json' } });
+        if (!response.ok) throw new Error('index request failed');
+        const raw = (await response.json()) as Doc[];
+
+        docs = raw.map((doc) => ({
+          ...doc,
+          titleTokens: tokenize(doc.title),
+          descTokens: tokenize(doc.description),
+          tagTokens: doc.tags.flatMap((tag) => tokenize(tag)),
+          bodyTokens: tokenize(doc.body),
+        }));
+
+        const df = new Map<string, number>();
+        docs.forEach((doc) => {
+          const unique = new Set([
+            ...doc.titleTokens,
+            ...doc.descTokens,
+            ...doc.tagTokens,
+            ...doc.bodyTokens,
+          ]);
+          unique.forEach((token) => df.set(token, (df.get(token) ?? 0) + 1));
+        });
+
+        const total = docs.length;
+        idf = new Map(
+          [...df.entries()].map(([token, count]) => [
+            token,
+            Math.log((total + 1) / (count + 1)) + 1,
+          ]),
+        );
+
+        hasLoaded = true;
+      } catch {
+        if (status) status.textContent = '索引加载失败，请刷新页面重试';
+      }
+    })();
+
+    return loading;
+  };
+
+  const count = (tokens: string[], token: string) => {
+    let total = 0;
+    for (const item of tokens) {
+      if (item === token) total += 1;
+    }
+    return total;
+  };
+
+  const scoreDoc = (doc: IndexedDoc, tokens: string[], raw: string) => {
+    let score = 0;
+    const unique = [...new Set(tokens)];
+
+    for (const token of unique) {
+      const weight = idf.get(token) ?? 1;
+      const tf =
+        count(doc.titleTokens, token) * 6 +
+        count(doc.tagTokens, token) * 4 +
+        count(doc.descTokens, token) * 3 +
+        count(doc.bodyTokens, token) * 1;
+      score += tf * weight;
+    }
+
+    if (raw.length > 1) {
+      const lower = raw.toLowerCase();
+      if (doc.title.toLowerCase().includes(lower)) score += 12;
+      if (doc.description.toLowerCase().includes(lower)) score += 5;
+      if (doc.tags.some((tag) => tag.toLowerCase().includes(lower))) score += 8;
+    }
+
+    return score;
+  };
+
+  const formatDate = (iso: string, lang: 'zh' | 'en') => {
+    const date = new Date(iso);
+    return new Intl.DateTimeFormat(lang === 'en' ? 'en-US' : 'zh-CN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  };
+
+  const render = (matches: IndexedDoc[], query: string) => {
+    if (!resultsEl) return;
+    resultsEl.replaceChildren();
+
+    if (!query.trim()) {
+      if (status) status.textContent = '输入关键词开始搜索';
+      if (suggestions) suggestions.hidden = false;
+      return;
+    }
+
+    if (suggestions) suggestions.hidden = true;
+
+    if (matches.length === 0) {
+      if (status) status.textContent = '没有找到匹配的纸片，试试更短的关键词';
+      const empty = document.createElement('p');
+      empty.className = 'search-empty';
+      empty.textContent = '没有找到匹配的纸片。可以换一个更短的词，或者去归档里翻翻。';
+      resultsEl.appendChild(empty);
+      return;
+    }
+
+    if (status) status.textContent = `找到 ${matches.length} 篇纸片`;
+
+    const list = document.createElement('ol');
+    list.className = 'search-list';
+
+    matches.forEach((doc) => {
+      const item = document.createElement('li');
+      item.className = 'search-item paper';
+
+      const link = document.createElement('a');
+      link.className = 'search-item__link';
+      link.href = `/blog/${doc.slug}/`;
+
+      const title = document.createElement('h2');
+      title.className = 'search-item__title';
+      title.textContent = doc.title;
+
+      const desc = document.createElement('p');
+      desc.className = 'search-item__desc';
+      desc.textContent = doc.description;
+
+      const meta = document.createElement('div');
+      meta.className = 'search-item__meta';
+
+      const category = document.createElement('span');
+      category.className = 'chip';
+      category.dataset.tone = categories[doc.category].tone;
+      category.textContent = categoryLabel(doc.category);
+
+      const lang = document.createElement('span');
+      lang.className = 'lang-tag';
+      lang.textContent = languageLabel(doc.lang);
+
+      const date = document.createElement('time');
+      date.dateTime = doc.date;
+      date.textContent = formatDate(doc.date, doc.lang);
+
+      meta.append(category, lang, date);
+      link.append(title, desc, meta);
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+
+    resultsEl.appendChild(list);
+  };
+
+  const search = () => {
+    if (!hasLoaded) return;
+    const raw = (input?.value ?? '').trim();
+
+    const nextUrl = raw
+      ? `${window.location.pathname}?q=${encodeURIComponent(raw)}`
+      : window.location.pathname;
+    window.history.replaceState(null, '', nextUrl);
+
+    if (!raw) {
+      render([], '');
+      return;
+    }
+
+    const tokens = tokenize(raw);
+    if (tokens.length === 0) {
+      render([], raw);
+      return;
+    }
+
+    const matches = docs
+      .map((doc) => ({ doc, score: scoreDoc(doc, tokens, raw) }))
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 12)
+      .map((item) => item.doc);
+
+    render(matches, raw);
+  };
+
+  let debounce = 0;
+  input?.addEventListener('input', () => {
+    window.clearTimeout(debounce);
+    void loadIndex().then(() => {
+      debounce = window.setTimeout(search, 120);
+    });
+  });
+
+  input?.addEventListener('focus', () => {
+    void loadIndex();
+  });
+
+  const form = document.querySelector<HTMLFormElement>('[data-search-form]');
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    void loadIndex().then(search);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const target = event.target as HTMLElement | null;
+    const isTyping =
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target?.isContentEditable;
+
+    if (event.key === '/' && !isTyping) {
+      event.preventDefault();
+      input?.focus();
+    }
+
+    if (event.key === 'Escape' && document.activeElement === input && input) {
+      input.value = '';
+      search();
+    }
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const initial = params.get('q');
+  if (initial && input) {
+    input.value = initial;
+    void loadIndex().then(search);
+  }
+</script>
+
+<style is:global>
+  .search-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .search-item {
+    transition: transform 0.25s var(--ease), border-color 0.25s var(--ease);
+  }
+
+  .search-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--blue);
+  }
+
+  .search-item__link {
+    display: block;
+    padding: 1.1rem 1.3rem;
+    text-decoration: none;
+  }
+
+  .search-item__title {
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+
+  .search-item:hover .search-item__title {
+    color: var(--blue-strong);
+  }
+
+  .search-item__desc {
+    margin-top: 0.35rem;
+    color: var(--ink-3);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .search-item__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--ink-3);
+  }
+
+  .search-empty {
+    padding: 1.5rem 1.6rem;
+    border: 1px dashed var(--rule);
+    color: var(--ink-3);
+    font-size: 0.88rem;
+  }
+</style>

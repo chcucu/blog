@@ -1,0 +1,252 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  url: string;
+  vertical?: boolean;
+}
+
+const { title, url, vertical = false } = Astro.props;
+
+const xHref = `https://x.com/intent/post?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+const weiboHref = `https://service.weibo.com/share/share.php?title=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+---
+
+<div class:list={['share', { 'share--vertical': vertical }]} data-share-root>
+  <button
+    class="share__btn"
+    type="button"
+    data-copy-link
+    aria-label="复制本文链接"
+    title="复制链接"
+  >
+    <span class="share__icon" data-copy-icon><Icon name="copy" size={18} /></span>
+    <span class="share__icon share__icon--done" hidden><Icon name="check" size={18} /></span>
+    <span class="share__label" data-copy-label>复制链接</span>
+  </button>
+
+  <button
+    class="share__btn"
+    type="button"
+    data-native-share
+    aria-label="系统分享"
+    title="分享"
+    hidden
+  >
+    <Icon name="share" size={18} />
+    <span class="share__label">分享</span>
+  </button>
+
+  <a
+    class="share__btn"
+    href={xHref}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="分享到 X（在新窗口打开）"
+    title="分享到 X"
+  >
+    <Icon name="x" size={16} />
+    <span class="share__label">X</span>
+  </a>
+
+  <a
+    class="share__btn"
+    href={weiboHref}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="分享到微博（在新窗口打开）"
+    title="分享到微博"
+  >
+    <span class="share__weibo" aria-hidden="true">微</span>
+    <span class="share__label">微博</span>
+  </a>
+</div>
+
+<style>
+  .share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .share__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.35rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper-raised);
+    color: var(--ink-2);
+    font-size: 0.72rem;
+    text-decoration: none;
+    transition: color 0.25s var(--ease), border-color 0.25s var(--ease),
+      background-color 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .share__btn:hover {
+    color: var(--blue-strong);
+    border-color: var(--blue);
+    background: var(--blue-wash);
+    transform: translateY(-1px);
+  }
+
+  .share__btn[hidden] {
+    display: none;
+  }
+
+  .share__icon--done {
+    color: var(--sage);
+  }
+
+  .share__weibo {
+    display: inline-grid;
+    place-items: center;
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 50%;
+    background: var(--clay);
+    color: var(--paper-raised);
+    font-size: 0.56rem;
+    line-height: 1;
+  }
+
+  .share--vertical {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+  }
+
+  .share--vertical .share__btn {
+    flex-direction: column;
+    gap: 0.15rem;
+    width: 3.1rem;
+    min-height: 3.1rem;
+    padding: 0.45rem 0;
+    border-radius: 6px;
+  }
+
+  .share--vertical .share__label {
+    font-size: 0.55rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 760px) {
+    .share__label {
+      display: none;
+    }
+
+    .share__btn {
+      width: 2.4rem;
+      min-height: 2.4rem;
+      padding: 0;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  const copyText = async (text: string) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await Promise.race([
+          navigator.clipboard.writeText(text),
+          new Promise((_, reject) => {
+            window.setTimeout(() => reject(new Error('clipboard timeout')), 900);
+          }),
+        ]);
+        return true;
+      } catch {
+        /* 剪贴板被拒绝时退回 execCommand */
+      }
+    }
+
+    const input = document.createElement('textarea');
+    input.value = text;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.top = '-9999px';
+    document.body.appendChild(input);
+    input.select();
+
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch {
+      copied = false;
+    }
+    input.remove();
+    return copied;
+  };
+
+  let toastTimer = 0;
+
+  const showToast = (message: string) => {
+    let toast = document.querySelector<HTMLElement>('[data-copy-toast]');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'copy-toast';
+      toast.dataset.copyToast = '';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.dataset.visible = 'true';
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.dataset.visible = 'false';
+    }, 2400);
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-share-root]').forEach((root) => {
+    const copyButton = root.querySelector<HTMLButtonElement>('[data-copy-link]');
+    const nativeButton = root.querySelector<HTMLButtonElement>('[data-native-share]');
+    const copyIcon = root.querySelector<HTMLElement>('[data-copy-icon]');
+    const doneIcon = root.querySelector<HTMLElement>('.share__icon--done');
+
+    if (nativeButton && typeof navigator.share === 'function') {
+      nativeButton.hidden = false;
+      nativeButton.addEventListener('click', async () => {
+        try {
+          await navigator.share({
+            title: document.title,
+            url: window.location.href,
+          });
+        } catch {
+          /* 用户取消分享 */
+        }
+      });
+    }
+
+    copyButton?.addEventListener('click', async () => {
+      const copied = await copyText(window.location.href);
+
+      if (copied) {
+        showToast('链接已复制');
+        if (copyIcon) copyIcon.hidden = true;
+        if (doneIcon) doneIcon.hidden = false;
+        const label = copyButton.querySelector<HTMLElement>('[data-copy-label]');
+        const original = label?.textContent ?? '';
+        if (label) label.textContent = '已复制';
+        copyButton.setAttribute('aria-label', '链接已复制');
+
+        window.setTimeout(() => {
+          if (copyIcon) copyIcon.hidden = false;
+          if (doneIcon) doneIcon.hidden = true;
+          if (label) label.textContent = original;
+          copyButton.setAttribute('aria-label', '复制本文链接');
+        }, 2000);
+      } else {
+        showToast('复制失败，请手动选择地址栏链接');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,163 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../site.config';
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+
+<button
+  class="like-btn"
+  type="button"
+  data-like
+  data-slug={slug}
+  data-endpoint={site.likesEndpoint}
+  aria-pressed="false"
+  aria-label="喜欢这篇文章"
+>
+  <span class="like-btn__icon"><Icon name="heart" size={17} /></span>
+  <span class="like-btn__count" data-like-count>喜欢</span>
+</button>
+<span class="visually-hidden" role="status" data-like-status></span>
+
+<style>
+  .like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.35rem;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper-raised);
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    transition: color 0.25s var(--ease), border-color 0.25s var(--ease),
+      background-color 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .like-btn:hover {
+    color: var(--clay);
+    border-color: var(--clay);
+    background: var(--clay-wash);
+    transform: translateY(-1px);
+  }
+
+  .like-btn__icon {
+    display: inline-flex;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .like-btn[aria-pressed='true'] {
+    color: var(--clay);
+    border-color: var(--clay);
+    background: var(--clay-wash);
+  }
+
+  .like-btn[aria-pressed='true'] :global(svg path) {
+    fill: currentColor;
+  }
+
+  .like-btn[aria-pressed='true'] .like-btn__icon {
+    transform: scale(1.12);
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-like]');
+
+  if (button) {
+    const slug = button.dataset.slug ?? '';
+    const endpoint = button.dataset.endpoint ?? '/api/likes';
+    const countEl = button.querySelector<HTMLElement>('[data-like-count]');
+    const statusEl = document.querySelector<HTMLElement>('[data-like-status]');
+    const likeKey = `paper-scraps:liked:${slug}`;
+    const countKey = `paper-scraps:count:${slug}`;
+
+    let liked = false;
+    let count = 0;
+    let hasApi = false;
+
+    try {
+      liked = localStorage.getItem(likeKey) === '1';
+      count = Number(localStorage.getItem(countKey) ?? '0') || 0;
+    } catch {
+      liked = false;
+    }
+
+    const render = () => {
+      button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+      button.setAttribute('aria-label', liked ? '取消喜欢这篇文章' : '喜欢这篇文章');
+      if (countEl) {
+        countEl.textContent = count > 0 ? String(count) : '喜欢';
+      }
+    };
+
+    const persist = () => {
+      try {
+        localStorage.setItem(likeKey, liked ? '1' : '0');
+        localStorage.setItem(countKey, String(count));
+      } catch {
+        /* 忽略隐私模式下的存储失败 */
+      }
+    };
+
+    const load = async () => {
+      try {
+        const response = await fetch(
+          `${endpoint}?slug=${encodeURIComponent(slug)}`,
+          { headers: { accept: 'application/json' } },
+        );
+        if (!response.ok) return;
+        const data = (await response.json()) as { count?: number };
+        if (typeof data.count === 'number') {
+          count = data.count;
+          hasApi = true;
+          persist();
+          render();
+        }
+      } catch {
+        /* 离线或用本地计数 */
+      }
+    };
+
+    button.addEventListener('click', async () => {
+      const next = !liked;
+      liked = next;
+
+      if (hasApi) {
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ slug, action: next ? 'like' : 'unlike' }),
+          });
+          if (!response.ok) throw new Error('request failed');
+          const data = (await response.json()) as { count?: number };
+          if (typeof data.count === 'number') {
+            count = data.count;
+          }
+        } catch {
+          count = Math.max(0, count + (next ? 1 : -1));
+          hasApi = false;
+        }
+      } else {
+        count = Math.max(0, count + (next ? 1 : -1));
+      }
+
+      persist();
+      render();
+      if (statusEl) {
+        statusEl.textContent = next ? '已标记喜欢' : '已取消喜欢';
+      }
+    });
+
+    render();
+    load();
+  }
+</script>

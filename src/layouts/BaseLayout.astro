@@ -1,0 +1,101 @@
+---
+import '../styles/global.css';
+import frauncesUrl from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
+import interUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SEO from '../components/SEO.astro';
+import { site } from '../site.config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noIndex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  lang?: 'zh' | 'en';
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description = site.description,
+  image = '/og/default.png',
+  type = 'website',
+  noIndex = false,
+  jsonLd,
+  lang = 'zh',
+  bodyClass = '',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang === 'en' ? 'en' : 'zh-CN'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f4efe5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1725" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : prefersDark
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+
+    <SEO
+      title={title}
+      description={description}
+      image={image}
+      type={type}
+      noIndex={noIndex}
+      jsonLd={jsonLd}
+      lang={lang}
+    />
+
+    <link
+      rel="preload"
+      href={frauncesUrl}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />
+  </head>
+
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    {
+      site.umami.websiteId && site.umami.scriptUrl && (
+        <script
+          is:inline
+          defer
+          src={site.umami.scriptUrl}
+          data-website-id={site.umami.websiteId}
+        />
+      )
+    }
+  </body>
+</html>

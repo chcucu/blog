@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { tagToSlug } from '../../data/taxonomy';
+import { getPosts } from '../../lib/posts';
+import { site } from '../../site.config';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const map = new Map<string, Set<string>>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      const slug = tagToSlug(tag);
+      if (!map.has(slug)) map.set(slug, new Set());
+      map.get(slug)!.add(tag);
+    }
+  }
+
+  return [...map.entries()].map(([slug, labels]) => ({
+    params: { tag: slug },
+    props: { slug, labels: [...labels] },
+  }));
+}
+
+interface Props {
+  slug: string;
+  labels: string[];
+}
+
+const { slug, labels } = Astro.props;
+const allPosts = await getPosts();
+const posts = allPosts.filter((post) =>
+  post.data.tags.some((tag) => tagToSlug(tag) === slug),
+);
+const title = labels[0];
+const aliases = labels.join(' · ');
+
+const relatedMap = new Map<string, { labels: Set<string>; count: number }>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    const relatedSlug = tagToSlug(tag);
+    if (relatedSlug === slug) continue;
+    const entry = relatedMap.get(relatedSlug) ?? { labels: new Set<string>(), count: 0 };
+    entry.labels.add(tag);
+    entry.count += 1;
+    relatedMap.set(relatedSlug, entry);
+  }
+}
+
+const relatedTags = [...relatedMap.entries()]
+  .sort((a, b) => b[1].count - a[1].count)
+  .slice(0, 8)
+  .map(([relatedSlug, entry]) => ({
+    slug: relatedSlug,
+    label: [...entry.labels][0],
+    count: entry.count,
+  }));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `标签：${title}`,
+  url: new URL(`/tags/${slug}/`, site.url).href,
+  description: `所有带有「${aliases}」标签的文章。`,
+};
+---
+
+<BaseLayout
+  title={`#${title}`}
+  description={`所有带有「${aliases}」标签的文章。`}
+  jsonLd={jsonLd}
+>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">#</span>
+    <div class="container">
+      <p class="kicker">Tag · {slug}</p>
+      <h1 class="masthead__title">
+        <span class="tag-hash">#</span>{title}
+      </h1>
+      {labels.length > 1 && <p class="masthead__aliases">{aliases}</p>}
+      <p class="masthead__lede">
+        共 {posts.length} 篇纸片带着这个标签。标签不是分类，它更像一根线，
+        把散落在不同栏目、不同语言里的同一件事串起来。
+      </p>
+      <p class="masthead__count">{posts.length} Articles</p>
+    </div>
+  </section>
+
+  <section class="container journal" aria-label={`标签 ${title} 的文章`}>
+    <div class="post-grid">
+      {posts.map((post, index) => <PostCard post={post} index={index} />)}
+    </div>
+  </section>
+
+  {
+    relatedTags.length > 0 && (
+      <section class="container related-tags" aria-labelledby="related-tags-title">
+        <p class="kicker">相邻的标签</p>
+        <h2 id="related-tags-title" class="related-tags__title">从另一个词继续</h2>
+        <div class="pill-nav related-tags__pills">
+          {relatedTags.map((item) => (
+            <a class="pill pill--sm" href={`/tags/${item.slug}/`}>
+              #{item.label}
+              <span class="pill__count">{item.count}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .journal {
+    padding-top: 0;
+  }
+
+  .tag-hash {
+    color: var(--blue);
+    opacity: 0.55;
+  }
+
+  .masthead__aliases {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+  }
+
+  .related-tags {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    padding-top: clamp(1.8rem, 4vw, 2.5rem);
+    border-top: 1px solid var(--rule-soft);
+    text-align: center;
+  }
+
+  .related-tags__title {
+    margin-top: 0.5rem;
+    font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  }
+
+  .related-tags__pills {
+    justify-content: center;
+    margin-top: 1.1rem;
+  }
+
+  @media (max-width: 700px) {
+    .related-tags__pills {
+      justify-content: flex-start;
+    }
+  }
+</style>

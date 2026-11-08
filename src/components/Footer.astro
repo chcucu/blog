@@ -1,0 +1,250 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../site.config';
+
+const year = new Date().getFullYear();
+const navItems = [
+  { href: '/blog/', label: '文章' },
+  { href: '/archive/', label: '归档' },
+  { href: '/projects/', label: '项目' },
+  { href: '/life/', label: '生活' },
+  { href: '/about/', label: '关于' },
+];
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-note paper torn scrap scrap--tape" style="--tilt: -0.4deg">
+      <p class="kicker">写信给我</p>
+      <h2 class="footer-note__title">有想法，<br />就贴在下面。</h2>
+      <a class="footer-note__mail" href={`mailto:${site.email}`}>
+        <Icon name="mail" size={18} />
+        <span>{site.email}</span>
+      </a>
+      <p class="footer-note__desc">
+        不一定要谈技术。一句读过的诗、一张拍糊的照片、一个还没想清楚的问题，都可以。
+      </p>
+      <span class="stamp footer-note__stamp" aria-hidden="true">PAPER<br />SCRAPS<br />2026</span>
+    </div>
+
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="footer-brand__name" href="/">{site.name}</a>
+        <p>{site.tagline}。十年之约、开发、摄影、音乐与影像，留在这里的纸片。</p>
+        <p class="footer-brand__en">{site.nameEn}</p>
+      </div>
+
+      <nav class="footer-col" aria-label="页脚导航">
+        <h2 class="footer-col__title">浏览</h2>
+        <ul>
+          {
+            navItems.map((item) => (
+              <li>
+                <a class="link-underline" href={item.href}>{item.label}</a>
+              </li>
+            ))
+          }
+          <li><a class="link-underline" href="/search/">搜索</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer-col">
+        <h2 class="footer-col__title">连接</h2>
+        <ul>
+          {
+            site.socials.map((item) => (
+              <li>
+                <a class="link-underline footer-social" href={item.href}>
+                  <Icon name={item.icon} size={15} />
+                  <span>{item.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h2 class="footer-col__title">订阅</h2>
+        <p class="footer-col__text">不想错过新纸片，可以订阅 RSS。</p>
+        <a class="btn btn--ghost footer-rss" href="/rss.xml">
+          RSS
+          <Icon name="rss" size={15} />
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {year} {site.author}. 用 Astro 与纸片搭成。</p>
+      <p class="footer-bottom__meta">{site.handle} · 保留所有权利</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: clamp(4rem, 10vw, 8rem);
+    padding-top: clamp(3rem, 7vw, 5rem);
+    border-top: 1px solid var(--rule-soft);
+    background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--paper-sunk) 55%, transparent));
+  }
+
+  .footer-note {
+    max-width: 40rem;
+    margin-inline: auto;
+    padding: clamp(2rem, 5vw, 3.2rem);
+    text-align: center;
+  }
+
+  .footer-note__title {
+    margin-top: 0.9rem;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .footer-note__mail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding-bottom: 0.15rem;
+    border-bottom: 1px solid var(--blue);
+    color: var(--blue-strong);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    text-decoration: none;
+    transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
+  }
+
+  .footer-note__mail:hover {
+    color: var(--clay);
+    border-color: var(--clay);
+  }
+
+  .footer-note__desc {
+    max-width: 26rem;
+    margin: 1.3rem auto 0;
+    color: var(--ink-3);
+    font-size: 0.88rem;
+    line-height: 1.8;
+  }
+
+  .footer-note__stamp {
+    position: absolute;
+    right: 1.6rem;
+    bottom: 1.4rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(3, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    margin-top: clamp(3rem, 7vw, 5rem);
+  }
+
+  .footer-brand__name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+
+  .footer-brand p {
+    max-width: 18rem;
+    margin-top: 0.8rem;
+    color: var(--ink-3);
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+
+  .footer-brand__en {
+    font-family: var(--font-mono);
+    font-size: 0.6rem !important;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .footer-col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer-col__title {
+    margin-bottom: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .footer-col a {
+    font-size: 0.86rem;
+    color: var(--ink-2);
+  }
+
+  .footer-social {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .footer-col__text {
+    color: var(--ink-3);
+    font-size: 0.82rem;
+    line-height: 1.75;
+  }
+
+  .footer-rss {
+    margin-top: 0.9rem;
+    min-height: 2.4rem;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.76rem;
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding: 1.4rem 0 2rem;
+    border-top: 1px solid var(--rule-soft);
+    color: var(--ink-3);
+    font-size: 0.74rem;
+  }
+
+  .footer-bottom__meta {
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 860px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-note__stamp {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="6" fill="#35638f" />
+  <path d="M8 6 L56 4 L60 58 L52 62 L6 58 Z" fill="#22476d" opacity="0.35" />
+  <text
+    x="32"
+    y="43"
+    text-anchor="middle"
+    font-family="Songti SC, Noto Serif CJK SC, serif"
+    font-size="34"
+    fill="#fbf8f1"
+  >碎</text>
+</svg>

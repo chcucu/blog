@@ -1,0 +1,569 @@
+---
+import { render } from 'astro:content';
+import fs from 'node:fs';
+import 'katex/dist/katex.min.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import Toc from '../../components/Toc.astro';
+import ShareLinks from '../../components/ShareLinks.astro';
+import LikeButton from '../../components/LikeButton.astro';
+import Comments from '../../components/Comments.astro';
+import ReadingAids from '../../components/ReadingAids.astro';
+import Mermaid from '../../components/Mermaid.astro';
+import PostCard from '../../components/PostCard.astro';
+import { categories, categoryLabel, languageLabel, tagToSlug } from '../../data/taxonomy';
+import { formatDate, getPosts, relatedPosts, type Post } from '../../lib/posts';
+import { site } from '../../site.config';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+const allPosts = await getPosts();
+const index = allPosts.findIndex((item) => item.id === post.id);
+const newer = index > 0 ? allPosts[index - 1] : undefined;
+const older = index < allPosts.length - 1 ? allPosts[index + 1] : undefined;
+const related = relatedPosts(post, allPosts, 3);
+
+const category = categories[post.data.category];
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const ogPath = fs.existsSync(`./public/og/${post.id}.png`)
+  ? `/og/${post.id}.png`
+  : '/og/default.png';
+const ogImage = new URL(ogPath, site.url).href;
+const lang = post.data.lang;
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.date.toISOString(),
+  dateModified: (post.data.updated ?? post.data.date).toISOString(),
+  inLanguage: lang === 'en' ? 'en' : 'zh-CN',
+  author: {
+    '@type': 'Person',
+    name: site.author,
+    alternateName: site.handle,
+    url: site.url,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: site.name,
+    url: site.url,
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonical,
+  },
+  image: ogImage,
+  url: canonical,
+  keywords: post.data.tags.join(', '),
+  articleSection: categoryLabel(post.data.category, 'zh'),
+};
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首页', item: site.url },
+    { '@type': 'ListItem', position: 2, name: '文章', item: new URL('/blog/', site.url).href },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: post.data.title,
+      item: canonical,
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={ogPath}
+  type="article"
+  lang={lang}
+  jsonLd={[articleLd, breadcrumbLd]}
+>
+  <article lang={lang === 'en' ? 'en' : 'zh-CN'}>
+    <header class="article-head container">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href="/">首页</a>
+        <span aria-hidden="true">/</span>
+        <a href="/blog/">文章</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{categoryLabel(post.data.category)}</span>
+      </nav>
+
+      <div class="article-head__meta">
+        <a class="chip" data-tone={category.tone} href={`/categories/${post.data.category}/`}>
+          {categoryLabel(post.data.category)}
+        </a>
+        <span class="lang-tag">{languageLabel(lang)}</span>
+        {post.data.featured && <span class="article-head__featured">精选</span>}
+      </div>
+
+      <h1 class="article-head__title">{post.data.title}</h1>
+      <p class="article-head__desc">{post.data.description}</p>
+
+      <div class="article-head__foot">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date, lang)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{lang === 'en' ? 'Written in English' : '用中文写作'}</span>
+        <span aria-hidden="true">·</span>
+        <span>{post.data.tags.length} 个标签</span>
+      </div>
+    </header>
+
+    <div class="article-divider container" aria-hidden="true">
+      <span></span>
+    </div>
+
+    <div class="article-layout container">
+      <aside class="article-share" aria-label="分享这篇文章">
+        <ShareLinks title={post.data.title} url={canonical} vertical />
+      </aside>
+
+      <div class="article-main">
+        <details class="mobile-toc">
+          <summary>
+            <span>展开目录</span>
+            <Icon name="chevron-down" size={16} />
+          </summary>
+          <Toc headings={headings} label="文章目录（移动端）" compact />
+        </details>
+
+        <div
+          class="prose"
+          id="article-body"
+          data-reading-body
+          data-reading-size="md"
+        >
+          <Content />
+        </div>
+
+        <footer class="article-footer">
+          <ul class="article-tags" aria-label="文章标签">
+            {
+              post.data.tags.map((tag) => (
+                <li>
+                  <a class="tag" href={`/tags/${tagToSlug(tag)}/`}>#{tag}</a>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="article-actions">
+            <LikeButton slug={post.id} />
+            <ShareLinks title={post.data.title} url={canonical} />
+          </div>
+        </footer>
+
+        <Comments />
+      </div>
+
+      <aside class="article-toc" aria-label="文章目录">
+        <Toc headings={headings} />
+      </aside>
+    </div>
+
+    {
+      (newer || older) && (
+        <nav class="article-pager container" aria-label="文章翻页">
+          {newer && (
+            <a class="pager-card pager-card--next" href={`/blog/${newer.id}/`}>
+              <span class="pager-card__label">更新的纸片</span>
+              <span class="pager-card__title">{newer.data.title}</span>
+              <span class="pager-card__meta">{formatDate(newer.data.date, newer.data.lang)}</span>
+            </a>
+          )}
+          {older && (
+            <a class="pager-card pager-card--prev" href={`/blog/${older.id}/`}>
+              <span class="pager-card__label">更早的纸片</span>
+              <span class="pager-card__title">{older.data.title}</span>
+              <span class="pager-card__meta">{formatDate(older.data.date, older.data.lang)}</span>
+            </a>
+          )}
+        </nav>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section class="article-related container" aria-labelledby="related-title">
+          <header class="related-head">
+            <div>
+              <p class="kicker">继续翻</p>
+              <h2 id="related-title" class="related-head__title">相关的纸片</h2>
+            </div>
+            <a class="arrow-link" href="/blog/">
+              全部文章
+              <Icon name="arrow-right" size={16} />
+            </a>
+          </header>
+
+          <div class="related-grid">
+            {related.map((item, i) => (
+              <PostCard post={item} index={i} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </article>
+
+  <ReadingAids />
+  <Mermaid />
+</BaseLayout>
+
+<style>
+  .article-head {
+    max-width: 54rem;
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+
+  .breadcrumb a {
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--blue-strong);
+    text-decoration: underline;
+  }
+
+  .breadcrumb [aria-current='page'] {
+    color: var(--ink-2);
+  }
+
+  .article-head__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+  }
+
+  .article-head__meta .chip {
+    text-decoration: none;
+  }
+
+  .article-head__featured {
+    padding: 0.12rem 0.45rem;
+    border: 1px solid var(--sand);
+    color: var(--sand);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+  }
+
+  .article-head__title {
+    margin-top: 1rem;
+    font-size: clamp(2.2rem, 5.4vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .article-head__desc {
+    max-width: 42rem;
+    margin-top: 1.2rem;
+    color: var(--ink-3);
+    font-size: clamp(0.98rem, 1.5vw, 1.08rem);
+    line-height: 1.85;
+    text-wrap: pretty;
+  }
+
+  .article-head__foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.8rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--rule-soft);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+
+  .article-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 54rem;
+    margin-block: clamp(2rem, 4vw, 3rem);
+  }
+
+  .article-divider::before,
+  .article-divider::after {
+    content: '';
+    height: 1px;
+    flex: 1;
+    background: var(--rule);
+    opacity: 0.7;
+  }
+
+  .article-divider span {
+    width: 0.55rem;
+    height: 0.55rem;
+    background: var(--blue);
+    transform: rotate(45deg);
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: 3.2rem minmax(0, 46rem) 12.5rem;
+    justify-content: space-between;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+  }
+
+  .article-main {
+    min-width: 0;
+  }
+
+  .article-toc {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    max-height: calc(100vh - var(--header-h) - 4rem);
+    overflow-y: auto;
+    padding-right: 0.4rem;
+  }
+
+  .mobile-toc {
+    display: none;
+    margin-bottom: 2rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+  }
+
+  .mobile-toc summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-toc summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-toc[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  .mobile-toc summary svg {
+    transition: transform 0.25s var(--ease);
+  }
+
+  .mobile-toc :global(.toc) {
+    padding: 0 1rem 1rem;
+  }
+
+  .prose[data-reading-size='sm'] {
+    font-size: 0.96rem;
+  }
+
+  .prose[data-reading-size='md'] {
+    font-size: 1.0625rem;
+  }
+
+  .prose[data-reading-size='lg'] {
+    font-size: 1.2rem;
+  }
+
+  .article-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .article-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  /* 翻页 */
+  .article-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 60rem;
+    margin-top: clamp(3rem, 7vw, 5rem);
+  }
+
+  .pager-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.2rem 1.35rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s var(--ease), border-color 0.3s var(--ease),
+      box-shadow 0.3s var(--ease);
+  }
+
+  .pager-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--blue);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .pager-card--next {
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  .pager-card--prev {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .pager-card:only-child {
+    grid-column: 1 / -1;
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .pager-card__label {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .pager-card__title {
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+
+  .pager-card__meta {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--ink-3);
+  }
+
+  /* 相关 */
+  .article-related {
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+  }
+
+  .related-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.2rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .related-head__title {
+    margin-top: 0.5rem;
+    font-size: clamp(1.6rem, 3.4vw, 2.3rem);
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2.4vw, 1.6rem);
+  }
+
+  @media (max-width: 1120px) {
+    .article-layout {
+      grid-template-columns: 3.2rem minmax(0, 1fr);
+    }
+
+    .article-toc {
+      display: none;
+    }
+
+    .mobile-toc {
+      display: block;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .article-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .article-share {
+      display: none;
+    }
+
+    .article-related,
+    .article-pager {
+      grid-template-columns: 1fr;
+    }
+
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pager-card--next {
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    .pager-card--prev {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    .related-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
