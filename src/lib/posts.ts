@@ -3,7 +3,6 @@ import { categories, type CategoryKey } from '../data/taxonomy';
 
 export type Post = CollectionEntry<'posts'>;
 export type Project = CollectionEntry<'projects'>;
-export type LifeNote = CollectionEntry<'life'>;
 
 const zhDate = new Intl.DateTimeFormat('zh-CN', {
   year: 'numeric',
@@ -44,11 +43,6 @@ export async function getPosts() {
 export async function getProjects() {
   const projects = await getCollection('projects');
   return projects.sort((a, b) => a.data.order - b.data.order);
-}
-
-export async function getLifeNotes() {
-  const notes = await getCollection('life');
-  return notes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 
 export function relatedPosts(current: Post, all: Post[], limit = 3) {

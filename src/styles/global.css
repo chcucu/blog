@@ -9,30 +9,30 @@
 :root {
   color-scheme: light;
 
-  --paper: #f4efe5;
-  --paper-raised: #fbf8f1;
-  --paper-sunk: #eae3d5;
-  --ink: #14243a;
-  --ink-2: #2b3f59;
-  --ink-3: #566a80;
-  --rule: #c9c0ae;
-  --rule-soft: rgba(20, 36, 58, 0.12);
+  --paper: #ffffff;
+  --paper-raised: #ffffff;
+  --paper-sunk: #f3f7fc;
+  --ink: #0e2f52;
+  --ink-2: #1d4771;
+  --ink-3: #4c6f92;
+  --rule: #ccdbeb;
+  --rule-soft: rgba(14, 47, 82, 0.1);
 
-  --blue: #35638f;
-  --blue-strong: #22476d;
-  --blue-wash: #dde8f0;
-  --clay: #8f4b35;
-  --clay-wash: #f0dfd5;
-  --sage: #58674f;
-  --sage-wash: #e2e7db;
-  --sand: #755d2e;
-  --sand-wash: #eee4cf;
+  --blue: #1f5f9e;
+  --blue-strong: #124a7e;
+  --blue-wash: #e9f2fb;
+  --clay: #8a4a33;
+  --clay-wash: #f4e7e0;
+  --sage: #4f6350;
+  --sage-wash: #e9efe6;
+  --sand: #6f5a2c;
+  --sand-wash: #f5edda;
 
-  --wash-blue: rgba(120, 165, 205, 0.16);
-  --wash-clay: rgba(200, 150, 120, 0.12);
-  --tape: rgba(196, 172, 120, 0.5);
-  --shadow: 0 1px 0 rgba(20, 36, 58, 0.06), 0 18px 36px -28px rgba(20, 36, 58, 0.5);
-  --shadow-lift: 0 2px 0 rgba(20, 36, 58, 0.05), 0 26px 48px -26px rgba(20, 36, 58, 0.42);
+  --wash-blue: rgba(90, 150, 210, 0.1);
+  --wash-clay: rgba(200, 150, 120, 0.08);
+  --tape: rgba(190, 170, 120, 0.4);
+  --shadow: 0 1px 0 rgba(14, 47, 82, 0.05), 0 18px 36px -28px rgba(14, 47, 82, 0.28);
+  --shadow-lift: 0 2px 0 rgba(14, 47, 82, 0.04), 0 26px 48px -26px rgba(14, 47, 82, 0.24);
 
   --font-display: 'Fraunces Variable', 'Songti SC', 'STSong', 'Noto Serif CJK SC',
     'Source Han Serif SC', serif;

@@ -1,7 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
+import { getPosts, getProjects } from '../lib/posts';
 import { site } from '../site.config';
+
+const posts = await getPosts();
+const projects = await getProjects();
 
 const sameAs = site.socials
   .map((item) => item.href)
@@ -77,57 +81,96 @@ const colophon = [
   description={`关于 ${site.author}：十年之约服主、Paper 插件开发、Web、摄影、音乐与影像。`}
   jsonLd={jsonLd}
 >
-  <section class="about-hero">
-    <div class="container about-hero__grid">
-      <div class="about-hero__copy">
-        <p class="kicker">About · {site.handle}</p>
-        <h1 class="about-hero__title">
-          你好，<br />
-          我是 <span class="about-hero__name">{site.author}</span>。
-        </h1>
-        <p class="about-hero__lede">
-          十年之约服主，写 Paper 插件和 Mod，也做 Web、拍照、做音乐、剪视频，
-          还在上学。这个站点是我的工作台：技术长文、项目记录，
-          以及那些不值得单独发一条动态的碎片。
-        </p>
-        <div class="about-hero__actions">
-          <a class="btn" href={`mailto:${site.email}`}>
-            <Icon name="mail" size={16} />
-            写信给我
-          </a>
-          <a class="btn btn--ghost" href="/blog/">
-            读读文章
-            <Icon name="arrow-right" size={15} />
-          </a>
+  <section class="profile">
+    <div class="container">
+      <div class="profile-card">
+        <div class="profile-cover" aria-hidden="true">
+          <span class="profile-cover__word">碎</span>
+          <span class="profile-cover__line">Paper Scraps · {site.nameEn}</span>
         </div>
-      </div>
 
-      <div class="about-hero__aside">
-        {
-          site.avatar ? (
-            <img
-              class="avatar avatar--image torn scrap"
-              style="--tilt: -2deg"
-              src={site.avatar}
-              alt={`${site.author} 的头像`}
-              width="460"
-              height="460"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              class="avatar torn scrap"
-              style="--tilt: -2deg"
-              role="img"
-              aria-label="头像占位"
-            >
-              <span class="avatar__letter" aria-hidden="true">P</span>
-              <span class="avatar__caption">Portrait</span>
+        <div class="profile-main">
+          <div class="profile-avatar-wrap">
+            {
+              site.avatar ? (
+                <img
+                  class="profile-avatar"
+                  src={site.avatar}
+                  alt={`${site.author} 的头像`}
+                  width="460"
+                  height="460"
+                />
+              ) : (
+                <div class="profile-avatar profile-avatar--fallback" role="img" aria-label="头像占位">
+                  <span aria-hidden="true">P</span>
+                </div>
+              )
+            }
+          </div>
+
+          <div class="profile-info">
+            <p class="kicker">Profile · {site.handle}</p>
+            <h1 class="profile-name">{site.author}</h1>
+            <p class="profile-handle">{site.handle} · {site.name}</p>
+            <p class="profile-bio">
+              十年之约服主，Paper 插件与 Mod 开发者，也做 Web、摄影、音乐与影像。
+              关注长期运行的服务器、可维护的代码，以及把复杂信息整理成清晰页面的方法。
+            </p>
+
+            <div class="profile-actions">
+              <a class="btn" href={`mailto:${site.email}`}>
+                <Icon name="mail" size={16} />
+                写信给我
+              </a>
+              <a class="btn btn--ghost" href="/projects/">
+                查看项目
+                <Icon name="arrow-right" size={15} />
+              </a>
             </div>
-          )
-        }
-        <div class="about-hero__tape" aria-hidden="true"></div>
-        <div class="about-stamp stamp" aria-hidden="true">EST.<br />2024<br />SHANGHAI</div>
+          </div>
+
+          <dl class="profile-fields">
+            <div>
+              <dt>身份</dt>
+              <dd>十年之约服主 · Paper 插件开发 · 学生</dd>
+            </div>
+            <div>
+              <dt>在做</dt>
+              <dd>十年之约、Bento、蓝色信笺、星河班</dd>
+            </div>
+            <div>
+              <dt>方向</dt>
+              <dd>Minecraft · Web · 摄影 · 音乐 · 影像</dd>
+            </div>
+            <div>
+              <dt>邮箱</dt>
+              <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
+            </div>
+            <div>
+              <dt>文章</dt>
+              <dd>{posts.length} 篇</dd>
+            </div>
+            <div>
+              <dt>项目</dt>
+              <dd>{projects.length} 个</dd>
+            </div>
+          </dl>
+
+          <ul class="profile-socials" aria-label="社交链接">
+            {
+              site.socials
+                .filter((item) => item.icon !== 'rss')
+                .map((item) => (
+                  <li>
+                    <a href={item.href} class="tag">
+                      <Icon name={item.icon} size={14} />
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+            }
+          </ul>
+        </div>
       </div>
     </div>
   </section>
@@ -230,112 +273,171 @@ const colophon = [
 </BaseLayout>
 
 <style>
-  .about-hero {
-    padding-block: clamp(3rem, 7vw, 5.5rem) clamp(2rem, 4vw, 3rem);
+  .profile {
+    padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(2rem, 4vw, 3rem);
   }
 
-  .about-hero__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
-    gap: clamp(2rem, 6vw, 5rem);
-    align-items: center;
+  .profile-card {
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--paper-raised);
   }
 
-  .about-hero__title {
-    margin-top: 1rem;
-    font-size: clamp(2.6rem, 6.5vw, 5rem);
-    line-height: 1;
-    letter-spacing: -0.04em;
-  }
-
-  .about-hero__name {
+  .profile-cover {
     position: relative;
+    height: clamp(7rem, 14vw, 10rem);
+    overflow: hidden;
+    border-bottom: 1px solid var(--rule-soft);
+    background: linear-gradient(
+      118deg,
+      var(--blue-wash),
+      var(--paper-sunk) 55%,
+      var(--clay-wash)
+    );
+  }
+
+  .profile-cover__word {
+    position: absolute;
+    top: -0.35em;
+    right: 0.4rem;
+    font-family: var(--font-display);
+    font-size: clamp(9rem, 20vw, 15rem);
+    line-height: 0.8;
     color: var(--blue-strong);
+    opacity: 0.09;
+    pointer-events: none;
+  }
+
+  .profile-cover__line {
+    position: absolute;
+    left: clamp(1.2rem, 4vw, 2.5rem);
+    bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .profile-main {
+    padding: 0 clamp(1.2rem, 4vw, 2.5rem) clamp(1.6rem, 4vw, 2.5rem);
+  }
+
+  .profile-avatar-wrap {
+    margin-top: -3.4rem;
+  }
+
+  .profile-avatar {
+    width: clamp(6.5rem, 12vw, 8.5rem);
+    height: clamp(6.5rem, 12vw, 8.5rem);
+    object-fit: cover;
+    border: 4px solid var(--paper-raised);
+    border-radius: 8px;
+    background: var(--blue);
+    box-shadow: var(--shadow);
+  }
+
+  .profile-avatar--fallback {
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+  }
+
+  .profile-info {
+    margin-top: 1.1rem;
+  }
+
+  .profile-name {
+    margin-top: 0.45rem;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
     overflow-wrap: anywhere;
   }
 
-  .about-hero__name::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0.05em;
-    height: 0.1em;
-    background: var(--clay);
-    opacity: 0.6;
-    transform: rotate(-1deg);
+  .profile-handle {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-3);
   }
 
-  .about-hero__lede {
-    max-width: 34rem;
-    margin-top: 1.5rem;
-    color: var(--ink-3);
-    font-size: 1.02rem;
+  .profile-bio {
+    max-width: 44rem;
+    margin-top: 1rem;
+    color: var(--ink-2);
+    font-size: 0.98rem;
     line-height: 1.9;
     text-wrap: pretty;
   }
 
-  .about-hero__actions {
+  .profile-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.7rem;
-    margin-top: 1.8rem;
+    gap: 0.6rem;
+    margin-top: 1.3rem;
   }
 
-  .about-hero__aside {
-    position: relative;
-    justify-self: center;
-  }
-
-  .avatar {
-    position: relative;
+  .profile-fields {
     display: grid;
-    place-items: center;
-    width: clamp(10rem, 20vw, 14rem);
-    aspect-ratio: 4 / 5;
-    background: var(--blue);
-    color: var(--paper-raised);
-    box-shadow: var(--shadow-lift);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 clamp(1rem, 4vw, 2.5rem);
+    margin: clamp(1.6rem, 3vw, 2.2rem) 0 0;
+    padding: 0;
+    border-top: 1px solid var(--rule-soft);
   }
 
-  .avatar__letter {
-    font-family: var(--font-display);
-    font-size: clamp(4rem, 9vw, 6.5rem);
-    line-height: 1;
+  .profile-fields > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.1rem;
+    border-bottom: 1px dashed var(--rule-soft);
   }
 
-  .avatar--image {
-    aspect-ratio: 1;
-    object-fit: cover;
-    background: var(--paper-sunk);
-  }
-
-  .avatar__caption {
-    position: absolute;
-    bottom: 1rem;
+  .profile-fields dt {
+    flex-shrink: 0;
     font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    opacity: 0.75;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
   }
 
-  .about-hero__tape {
-    position: absolute;
-    top: -0.7rem;
-    left: 50%;
-    width: 6rem;
-    height: 1.5rem;
-    transform: translateX(-50%) rotate(-4deg);
-    background: var(--tape);
-    clip-path: polygon(2% 0, 98% 5%, 100% 92%, 4% 100%);
+  .profile-fields dd {
+    margin: 0;
+    font-size: 0.84rem;
+    text-align: right;
+    color: var(--ink);
   }
 
-  .about-stamp {
-    position: absolute;
-    right: -1.2rem;
-    bottom: -1.2rem;
-    background: var(--paper-raised);
+  .profile-fields a {
+    color: var(--blue-strong);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .profile-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 1.3rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 700px) {
+    .profile-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-avatar-wrap {
+      margin-top: -2.6rem;
+    }
   }
 
   .section-head {
@@ -519,14 +621,6 @@ const colophon = [
   }
 
   @media (max-width: 900px) {
-    .about-hero__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .about-hero__aside {
-      justify-self: start;
-    }
-
     .now-grid {
       grid-template-columns: 1fr;
     }
@@ -537,12 +631,6 @@ const colophon = [
 
     .colophon {
       grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 620px) {
-    .about-stamp {
-      display: none;
     }
   }
 </style>

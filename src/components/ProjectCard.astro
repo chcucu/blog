@@ -14,11 +14,10 @@ const glyph = project.data.title.slice(0, 1);
 ---
 
 <article class="project-card">
-  <div class="project-card__band" data-tone={tone}>
-    <span class="project-card__glyph" aria-hidden="true">{glyph}</span>
+  <div class="project-card__cover" data-tone={tone} aria-hidden="true">
+    <span class="project-card__glyph">{glyph}</span>
     <span class="project-card__year">{project.data.year}</span>
     <span class="project-card__status">{project.data.status}</span>
-    {project.data.sample && <span class="project-card__sample">示例项目</span>}
   </div>
 
   <div class="project-card__body">
@@ -32,9 +31,9 @@ const glyph = project.data.title.slice(0, 1);
     </ul>
 
     <div class="project-card__foot">
-      <span class="project-card__role">{project.data.role}</span>
-      <span class="project-card__arrow" aria-hidden="true">
-        <Icon name="arrow-right" size={16} />
+      <span class="project-card__more">
+        查看项目
+        <Icon name="arrow-right" size={15} />
       </span>
     </div>
   </div>
@@ -46,11 +45,10 @@ const glyph = project.data.title.slice(0, 1);
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
     border: 1px solid var(--rule);
     border-radius: 6px;
     background: var(--paper-raised);
-    overflow: hidden;
-    box-shadow: var(--shadow);
     transition: transform 0.35s var(--ease), border-color 0.35s var(--ease),
       box-shadow 0.35s var(--ease);
   }
@@ -61,47 +59,46 @@ const glyph = project.data.title.slice(0, 1);
     box-shadow: var(--shadow-lift);
   }
 
-  .project-card__band {
+  .project-card__cover {
     position: relative;
     display: flex;
     align-items: flex-end;
-    gap: 0.7rem;
-    height: 8.5rem;
-    padding: 1rem 1.2rem;
+    aspect-ratio: 16 / 10;
+    padding: 1.15rem 1.3rem;
     overflow: hidden;
     background: var(--band-bg);
     border-bottom: 1px solid var(--rule-soft);
   }
 
-  .project-card__band[data-tone='blue'] {
+  .project-card__cover[data-tone='blue'] {
     --band-bg: var(--blue-wash);
     --band-ink: var(--blue-strong);
   }
 
-  .project-card__band[data-tone='sage'] {
+  .project-card__cover[data-tone='sage'] {
     --band-bg: var(--sage-wash);
     --band-ink: var(--sage);
   }
 
-  .project-card__band[data-tone='clay'] {
+  .project-card__cover[data-tone='clay'] {
     --band-bg: var(--clay-wash);
     --band-ink: var(--clay);
   }
 
-  .project-card__band[data-tone='sand'] {
+  .project-card__cover[data-tone='sand'] {
     --band-bg: var(--sand-wash);
     --band-ink: var(--sand);
   }
 
   .project-card__glyph {
     position: absolute;
-    top: -0.25em;
-    right: 0.05em;
+    top: -0.2em;
+    right: 0.02em;
     font-family: var(--font-display);
-    font-size: 8rem;
+    font-size: clamp(7rem, 13vw, 11rem);
     line-height: 0.8;
     color: var(--band-ink);
-    opacity: 0.1;
+    opacity: 0.12;
     pointer-events: none;
   }
 
@@ -109,32 +106,24 @@ const glyph = project.data.title.slice(0, 1);
     position: relative;
     z-index: 1;
     font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: 2.1rem;
     line-height: 1;
     color: var(--band-ink);
   }
 
   .project-card__status {
-    position: relative;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
     z-index: 1;
-    padding: 0.12rem 0.5rem;
+    padding: 0.14rem 0.55rem;
     border: 1px solid currentColor;
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 0.58rem;
-    color: var(--band-ink);
-    opacity: 0.85;
-  }
-
-  .project-card__sample {
-    position: relative;
-    z-index: 1;
-    margin-left: auto;
-    font-family: var(--font-mono);
-    font-size: 0.56rem;
     letter-spacing: 0.04em;
     color: var(--band-ink);
-    opacity: 0.7;
+    opacity: 0.85;
   }
 
   .project-card__body {
@@ -142,7 +131,7 @@ const glyph = project.data.title.slice(0, 1);
     flex-direction: column;
     gap: 0.5rem;
     flex: 1;
-    padding: 1.15rem 1.25rem 1.2rem;
+    padding: 1.15rem 1.3rem 1.2rem;
   }
 
   .project-card__title {
@@ -159,7 +148,7 @@ const glyph = project.data.title.slice(0, 1);
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
   }
 
   .project-card__title a:focus-visible {
@@ -200,27 +189,24 @@ const glyph = project.data.title.slice(0, 1);
 
   .project-card__foot {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: auto;
     padding-top: 0.8rem;
     border-top: 1px dashed var(--rule-soft);
   }
 
-  .project-card__role {
+  .project-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     font-family: var(--font-mono);
     font-size: 0.6rem;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: var(--ink-3);
+    transition: color 0.3s var(--ease);
   }
 
-  .project-card__arrow {
-    color: var(--ink-3);
-    transition: transform 0.3s var(--ease), color 0.3s var(--ease);
-  }
-
-  .project-card:hover .project-card__arrow {
-    transform: translateX(4px);
+  .project-card:hover .project-card__more {
     color: var(--blue-strong);
   }
 </style>

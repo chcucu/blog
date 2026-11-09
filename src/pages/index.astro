@@ -6,8 +6,6 @@ import FeaturedPost from '../components/FeaturedPost.astro';
 import { categoryLabel } from '../data/taxonomy';
 import {
   categoryCounts,
-  formatDateShort,
-  getLifeNotes,
   getPosts,
   getProjects,
 } from '../lib/posts';
@@ -15,7 +13,6 @@ import { site } from '../site.config';
 
 const posts = await getPosts();
 const projects = await getProjects();
-const notes = await getLifeNotes();
 
 const featured = posts.find((post) => post.data.featured) ?? posts[0];
 const gridPosts = posts.filter((post) => post.id !== featured?.id).slice(0, 6);
@@ -48,17 +45,6 @@ const jsonLd = {
     <div class="container">
       <p class="kicker">Paper Scraps · Issue {issue}</p>
       <h1 class="masthead__title">把想法，<em>剪成纸片</em>。</h1>
-      <p class="masthead__lede">
-        十年之约服主、Paper 插件开发、Web、摄影、音乐、影像。
-        多重身份被剪碎、编号，贴在同一张桌子上。
-      </p>
-      <p class="masthead__roles">
-        {site.roles.join(' · ')}
-      </p>
-      <p class="masthead__count">
-        {posts.length} Articles · 中文 {zhCount} / EN {enCount}
-      </p>
-
       <form class="journal-search" action="/search/" method="get" role="search">
         <label class="visually-hidden" for="home-search">搜索文章</label>
         <span class="journal-search__icon" aria-hidden="true">
@@ -75,6 +61,43 @@ const jsonLd = {
           <Icon name="arrow-right" size={17} />
         </button>
       </form>
+
+      <nav class="entry-grid" aria-label="站点入口">
+        <a class="entry-card" href="/about/">
+          <span class="entry-card__top">
+            <span class="entry-card__index">01</span>
+            <span class="entry-card__label">Profile</span>
+          </span>
+          <span class="entry-card__title">查看个人信息</span>
+          <span class="entry-card__arrow" aria-hidden="true">
+            <Icon name="arrow-right" size={16} />
+          </span>
+        </a>
+
+        <a class="entry-card" href="/projects/">
+          <span class="entry-card__top">
+            <span class="entry-card__index">02</span>
+            <span class="entry-card__label">Projects</span>
+          </span>
+          <span class="entry-card__title">查看项目</span>
+          <span class="entry-card__meta">{projects.length} 个在做的东西</span>
+          <span class="entry-card__arrow" aria-hidden="true">
+            <Icon name="arrow-right" size={16} />
+          </span>
+        </a>
+
+        <a class="entry-card" href="/blog/">
+          <span class="entry-card__top">
+            <span class="entry-card__index">03</span>
+            <span class="entry-card__label">Writing</span>
+          </span>
+          <span class="entry-card__title">阅读文章</span>
+          <span class="entry-card__meta">{posts.length} 篇 · 中文 {zhCount} / EN {enCount}</span>
+          <span class="entry-card__arrow" aria-hidden="true">
+            <Icon name="arrow-right" size={16} />
+          </span>
+        </a>
+      </nav>
 
       <nav class="pill-nav masthead__pills" aria-label="内容分类">
         <a class="pill" href="/blog/">全部 <span class="pill__count">{posts.length}</span></a>
@@ -120,56 +143,31 @@ const jsonLd = {
     )
   }
 
-  <section class="container more-section" aria-label="项目与生活">
-    <div class="more-grid">
-      <div class="more-col">
-        <div class="more-head">
-          <h2>在做的事</h2>
-          <a class="arrow-link" href="/projects/">
-            全部项目
-            <Icon name="arrow-right" size={15} />
-          </a>
-        </div>
-        <ul class="more-list">
-          {
-            projects.slice(0, 4).map((project) => (
-              <li>
-                <a href={`/projects/${project.id}/`}>
-                  <span class="more-list__year">{project.data.year}</span>
-                  <span class="more-list__title">{project.data.title}</span>
-                  <span class="more-list__meta">{project.data.status}</span>
-                  <span class="more-list__arrow" aria-hidden="true">
-                    <Icon name="arrow-right" size={15} />
-                  </span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
+  <section class="container more-section" aria-label="项目">
+    <div class="more-col">
+      <div class="more-head">
+        <h2>在做的事</h2>
+        <a class="arrow-link" href="/projects/">
+          全部项目
+          <Icon name="arrow-right" size={15} />
+        </a>
       </div>
-
-      <div class="more-col">
-        <div class="more-head">
-          <h2>生活碎片</h2>
-          <a class="arrow-link" href="/life/">
-            去翻翻
-            <Icon name="arrow-right" size={15} />
-          </a>
-        </div>
-        <ul class="more-list">
-          {
-            notes.slice(0, 4).map((note) => (
-              <li>
-                <div class="more-list__row">
-                  <span class="more-list__year">{formatDateShort(note.data.date, 'zh')}</span>
-                  <span class="more-list__title">{note.data.title}</span>
-                  <span class="more-list__meta">{note.data.location ?? '碎片'}</span>
-                </div>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
+      <ul class="more-list">
+        {
+          projects.slice(0, 4).map((project) => (
+            <li>
+              <a href={`/projects/${project.id}/`}>
+                <span class="more-list__year">{project.data.year}</span>
+                <span class="more-list__title">{project.data.title}</span>
+                <span class="more-list__meta">{project.data.status}</span>
+                <span class="more-list__arrow" aria-hidden="true">
+                  <Icon name="arrow-right" size={15} />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </BaseLayout>
@@ -177,6 +175,71 @@ const jsonLd = {
 <style>
   .home-featured {
     margin-bottom: clamp(3.5rem, 7vw, 5.5rem);
+  }
+
+  .entry-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin: 2.2rem auto 0;
+    text-align: left;
+  }
+
+  .entry-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1rem 2.2rem 0.2rem 0;
+    border-top: 1px solid var(--rule);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .entry-card__top {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .entry-card__index {
+    color: var(--clay);
+  }
+
+  .entry-card__title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    transition: color 0.25s var(--ease);
+  }
+
+  .entry-card__meta {
+    font-size: 0.76rem;
+    color: var(--ink-2);
+  }
+
+  .entry-card__arrow {
+    position: absolute;
+    top: 1.45rem;
+    right: 0;
+    display: inline-flex;
+    color: var(--ink-3);
+    transition: transform 0.25s var(--ease), color 0.25s var(--ease);
+  }
+
+  .entry-card:hover .entry-card__title {
+    color: var(--blue-strong);
+  }
+
+  .entry-card:hover .entry-card__arrow {
+    transform: translateX(4px);
+    color: var(--blue-strong);
   }
 
   .journal-section {
@@ -198,10 +261,30 @@ const jsonLd = {
       font-size: clamp(2.35rem, 11vw, 3.3rem);
     }
 
-    .masthead__roles {
-      font-size: 0.66rem;
-      letter-spacing: 0.05em;
-      line-height: 1.7;
+    .entry-grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 1.7rem;
+    }
+
+    .entry-card {
+      padding: 0.85rem 2.2rem 0.9rem 0;
+    }
+
+    .entry-card:last-child {
+      padding-bottom: 0;
+    }
+
+    .entry-card__title {
+      font-size: 1.12rem;
+    }
+
+    .entry-card__meta {
+      font-size: 0.7rem;
+    }
+
+    .entry-card__arrow {
+      top: 1.15rem;
     }
   }
 </style>

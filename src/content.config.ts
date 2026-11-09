@@ -48,21 +48,4 @@ const projects = defineCollection({
   }),
 });
 
-const life = defineCollection({
-  loader: glob({
-    pattern: '**/*.md',
-    base: './src/content/life',
-    generateId: ({ entry }) => entry.split('/').pop()!.replace(/\.md$/, ''),
-  }),
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    location: z.string().optional(),
-    kind: z.enum(['note', 'photo', 'link']).default('note'),
-    tone: z.enum(['blue', 'clay', 'sage', 'sand', 'ink']).default('blue'),
-    description: z.string(),
-    link: optionalUrl,
-  }),
-});
-
-export const collections = { posts, projects, life };
+export const collections = { posts, projects };
