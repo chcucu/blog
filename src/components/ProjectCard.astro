@@ -24,7 +24,9 @@ const glyph = project.data.title.slice(0, 1);
     <h3 class="project-card__title">
       <a href={url}>{project.data.title}</a>
     </h3>
-    <p class="project-card__desc">{project.data.description}</p>
+    {project.data.description && (
+      <p class="project-card__desc">{project.data.description}</p>
+    )}
 
     <ul class="project-card__stack" aria-label="技术栈">
       {project.data.stack.map((item) => <li>{item}</li>)}
@@ -47,7 +49,7 @@ const glyph = project.data.title.slice(0, 1);
     height: 100%;
     overflow: hidden;
     border: 1px solid var(--rule);
-    border-radius: 6px;
+    border-radius: 14px;
     background: var(--paper-raised);
     transition: transform 0.35s var(--ease), border-color 0.35s var(--ease),
       box-shadow 0.35s var(--ease);

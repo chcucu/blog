@@ -62,7 +62,9 @@ const jsonLd = {
       </div>
 
       <h1 class="project-head__title">{project.data.title}</h1>
-      <p class="project-head__desc">{project.data.description}</p>
+      {project.data.description && (
+        <p class="project-head__desc">{project.data.description}</p>
+      )}
 
       <ul class="project-head__stack" aria-label="技术栈">
         {project.data.stack.map((item) => <li>{item}</li>)}
@@ -89,12 +91,22 @@ const jsonLd = {
       }
     </header>
 
-    <div class="project-layout container">
-      <div class="prose project-body">
-        <Content />
-      </div>
+    <div
+      class:list={[
+        'project-layout',
+        'container',
+        !project.body?.trim() && 'project-layout--solo',
+      ]}
+    >
+      {
+        project.body?.trim() && (
+          <div class="prose project-body">
+            <Content />
+          </div>
+        )
+      }
 
-      <aside class="facts paper torn" aria-label="项目信息">
+      <aside class="facts paper" aria-label="项目信息">
         <p class="kicker">Facts</p>
         <dl>
           <div>
@@ -237,6 +249,11 @@ const jsonLd = {
 
   .project-body {
     min-width: 0;
+  }
+
+  .project-layout--solo {
+    grid-template-columns: minmax(0, 24rem);
+    justify-content: start;
   }
 
   .facts {

@@ -114,6 +114,22 @@ const jsonLd = {
   </section>
 
   {
+    posts.length === 0 && (
+      <section class="container home-empty" aria-labelledby="home-empty-title">
+        <div class="home-empty__card">
+          <p class="kicker">Writing · 0</p>
+          <h2 id="home-empty-title">文章还在写。</h2>
+          <p>示例内容已经全部删掉。第一篇会从这里开始。</p>
+          <div class="home-empty__actions">
+            <a class="btn btn--ghost" href="/projects/">先看项目</a>
+            <a class="btn btn--ghost" href="/about/">查看个人信息</a>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
     featured && (
       <section class="container home-featured" aria-label="精选文章">
         <FeaturedPost post={featured} />
@@ -175,6 +191,36 @@ const jsonLd = {
 <style>
   .home-featured {
     margin-bottom: clamp(3.5rem, 7vw, 5.5rem);
+  }
+
+  .home-empty {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .home-empty__card {
+    padding: clamp(1.6rem, 4vw, 2.6rem);
+    border: 1px solid var(--rule-soft);
+    border-radius: 14px;
+    background: var(--paper-raised);
+    box-shadow: var(--shadow);
+  }
+
+  .home-empty__card h2 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  }
+
+  .home-empty__card p {
+    max-width: 32rem;
+    margin-top: 0.6rem;
+    color: var(--ink-3);
+  }
+
+  .home-empty__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
   }
 
   .entry-grid {

@@ -5,11 +5,15 @@ import { categories, categoryLabel, type CategoryKey } from '../../data/taxonomy
 import { getPosts } from '../../lib/posts';
 import { site } from '../../site.config';
 
-export function getStaticPaths() {
-  return (Object.keys(categories) as CategoryKey[]).map((key) => ({
-    params: { category: key },
-    props: { key },
-  }));
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const used = new Set(posts.map((post) => post.data.category));
+  return (Object.keys(categories) as CategoryKey[])
+    .filter((key) => used.has(key))
+    .map((key) => ({
+      params: { category: key },
+      props: { key },
+    }));
 }
 
 interface Props {

@@ -106,6 +106,14 @@ const jsonLd = {
       显示 {posts.length} 篇纸片
     </p>
 
+    {
+      posts.length === 0 && (
+        <div class="empty-state">
+          <p>还没有文章。示例内容已经删除，第一篇正在写。</p>
+        </div>
+      )
+    }
+
     <div class="post-grid" data-post-list>
       {
         posts.map((post, index) => (
@@ -125,7 +133,7 @@ const jsonLd = {
     </div>
   </section>
 
-  <section class="container tag-index" aria-labelledby="tag-index-title">
+  <section class="container tag-index" aria-labelledby="tag-index-title" hidden={tags.length === 0}>
     <div class="tag-index__head">
       <p class="kicker">按标签翻</p>
       <h2 id="tag-index-title">从一个词开始</h2>
