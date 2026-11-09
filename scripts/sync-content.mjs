@@ -66,6 +66,13 @@ async function fetchBilibili() {
   };
 }
 
+function cleanDescription(name, text) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(text || '')
+    .replace(new RegExp(`^${escaped}\\s*[:：]\\s*`, 'i'), '')
+    .trim();
+}
+
 async function fetchGithub() {
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
   const headers = {
@@ -86,7 +93,7 @@ async function fetchGithub() {
       repos.push({
         name: repo.name,
         url: repo.html_url,
-        description: repo.description || '',
+        description: cleanDescription(repo.name, repo.description),
         homepage: repo.homepage || '',
         language: repo.language || '',
         stars: repo.stargazers_count,

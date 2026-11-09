@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-09T13:27:16.231Z",
+  "fetchedAt": "2026-11-09T13:28:56.096Z",
   "source": "https://github.com/chcucu?tab=repositories",
   "repos": [
     {
@@ -12,7 +12,7 @@
       "forks": 0,
       "archived": false,
       "isFork": false,
-      "pushedAt": "2026-11-09T13:16:03Z",
+      "pushedAt": "2026-11-09T13:27:31Z",
       "topics": [
         "astro",
         "blog",
@@ -36,7 +36,7 @@
     {
       "name": "FiscalCraft",
       "url": "https://github.com/chcucu/FiscalCraft",
-      "description": "FiscalCraft：Paper 1.21.11 服务器经济系统插件（银行 / 税收 / 贷款 / 风控），Vault 钱包底座，单线程串行账务。",
+      "description": "Paper 1.21.11 服务器经济系统插件（银行 / 税收 / 贷款 / 风控），Vault 钱包底座，单线程串行账务。",
       "homepage": "",
       "language": "Java",
       "stars": 0,
@@ -82,7 +82,7 @@
     {
       "name": "meetease",
       "url": "https://github.com/chcucu/meetease",
-      "description": "MeetEase：基于 Next.js 的活动平台，包含活动列表、地图定位与数据存储。",
+      "description": "基于 Next.js 的活动平台，包含活动列表、地图定位与数据存储。",
       "homepage": "",
       "language": "TypeScript",
       "stars": 0,
