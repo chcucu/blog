@@ -3,13 +3,13 @@
  * 所有可替换的占位信息都集中在 site 对象里，改完即生效。
  */
 export const site = {
-  name: '碎纸集',
-  nameEn: 'Paper Scraps',
-  tagline: '把想法剪成纸片',
+  name: 'S.A',
+  nameEn: 'S.A',
+  tagline: '开发、摄影与影像记录',
   description:
-    '十年之约服主、Paper 插件开发者，也做 Web、摄影、音乐与影像。把多重身份剪成纸片，贴在同一张桌子上。',
+    'shadow_agent404 的个人站点，记录 Minecraft 服务端开发、Paper 插件、Web 工程、摄影、音乐与影像。',
   descriptionEn:
-    'Founder of TenYearMC, Paper plugin developer — also web, photography, music and video. Multiple identities, cut into paper scraps.',
+    'Personal site of shadow_agent404, covering Minecraft server development, Paper plugins, web engineering, photography, music and video.',
   url: 'https://blog.tenyearmc.top',
   author: 'shadow_agent404',
   handle: '@shadow_agent404',

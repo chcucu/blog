@@ -24,10 +24,9 @@ const jsonLd = {
 >
   <section class="search-head container">
     <p class="kicker">Search · Index</p>
-    <h1 class="search-head__title">找一张纸片</h1>
+    <h1 class="search-head__title">搜索文章</h1>
     <p class="search-head__lede">
-      输入标题、标签或正文里的词。中文按二字切分，英文按单词匹配；
-      结果越靠前，说明它越可能包含你想找的东西。
+      输入标题、标签或正文中的关键词。中文按二字切分，英文按单词匹配，结果按相关度排序。
     </p>
 
     <form
@@ -395,15 +394,15 @@ const jsonLd = {
     if (suggestions) suggestions.hidden = true;
 
     if (matches.length === 0) {
-      if (status) status.textContent = '没有找到匹配的纸片，试试更短的关键词';
+      if (status) status.textContent = '没有找到匹配的文章，请尝试更短的关键词';
       const empty = document.createElement('p');
       empty.className = 'search-empty';
-      empty.textContent = '没有找到匹配的纸片。可以换一个更短的词，或者去归档里翻翻。';
+      empty.textContent = '没有找到匹配的文章。请更换关键词，或浏览归档。';
       resultsEl.appendChild(empty);
       return;
     }
 
-    if (status) status.textContent = `找到 ${matches.length} 篇纸片`;
+    if (status) status.textContent = `找到 ${matches.length} 篇文章`;
 
     const list = document.createElement('ol');
     list.className = 'search-list';

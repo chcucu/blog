@@ -35,32 +35,32 @@ const facets = [
   {
     key: 'Minecraft',
     title: '十年之约与 Paper 插件',
-    text: '维护十年之约，写 Paper 插件，偶尔改一点 Mod。',
+    text: '维护十年之约服务器，开发 Paper 插件与部分 Mod。',
   },
   {
     key: 'Web',
     title: '站点、工具与自动化',
-    text: '用 Astro、TypeScript 和 Cloudflare 做一些自己会用的东西。',
+    text: '使用 Astro、TypeScript 与 Cloudflare 构建站点和内部工具。',
   },
   {
     key: '摄影',
     title: '城市、光线与日常',
-    text: '拍街头、窗边，和那些没有名字的蓝色时刻。',
+    text: '以城市街头、自然光与日常场景为主要拍摄题材。',
   },
   {
     key: '音乐',
     title: '编曲、录音与现场',
-    text: '用电脑和几件乐器，把情绪整理成可以重复播放的东西。',
+    text: '进行编曲、录音与现场演出相关的制作。',
   },
   {
     key: '影像',
     title: '拍摄、剪辑与叙事',
-    text: '给服务器、旅行和音乐做短片，学习如何用画面讲故事。',
+    text: '为服务器、旅行与音乐项目制作短片，涉及拍摄、剪辑与叙事。',
   },
   {
     key: '学生',
-    title: '还在学',
-    text: '把不会的东西列出来，一次解决一个。',
+    title: '持续学习',
+    text: '按优先级补充技术栈与基础知识。',
   },
 ];
 
@@ -69,8 +69,8 @@ const tones = ['blue', 'sage', 'clay', 'sand', 'blue', 'sage'] as const;
 const colophon = [
   { label: '框架', value: 'Astro 7 · 静态生成' },
   { label: '部署', value: 'Cloudflare Pages' },
-  { label: '字体', value: 'Fraunces · Inter · IBM Plex Mono' },
-  { label: '视觉', value: 'CSS 撕边、胶带与纸张噪点' },
+  { label: '字体', value: 'Fraunces · SF Pro / 系统字体 · SF Mono' },
+  { label: '视觉', value: 'macOS 风格设计系统 · 浅色 / 深色' },
   { label: '内容', value: 'Markdown + Pages CMS' },
   { label: '评论', value: 'Giscus · GitHub Discussions' },
 ];
@@ -85,8 +85,8 @@ const colophon = [
     <div class="container">
       <div class="profile-card">
         <div class="profile-cover" aria-hidden="true">
-          <span class="profile-cover__word">碎</span>
-          <span class="profile-cover__line">Paper Scraps · {site.nameEn}</span>
+          <span class="profile-cover__word">S</span>
+          <span class="profile-cover__line">S.A · {site.handle}</span>
         </div>
 
         <div class="profile-main">
@@ -120,7 +120,7 @@ const colophon = [
             <div class="profile-actions">
               <a class="btn" href={`mailto:${site.email}`}>
                 <Icon name="mail" size={16} />
-                写信给我
+                发送邮件
               </a>
               <a class="btn btn--ghost" href="/projects/">
                 查看项目
@@ -187,17 +187,17 @@ const colophon = [
       <article class="now-card">
         <span class="now-card__label">在开</span>
         <h3>十年之约</h3>
-        <p>从 2024 开到 2034 的原版生存服：不卖特权、不删档，Java 与基岩互通。</p>
+        <p>2024 年启动的长期原版生存服务器，支持 Java 与基岩版互通。</p>
       </article>
       <article class="now-card">
         <span class="now-card__label">在写</span>
         <h3>Paper 插件与 Bento</h3>
-        <p>写 Bento 菜单框架和一些服务器插件，把重复动作交给代码。</p>
+        <p>开发 Bento 菜单框架及若干服务器插件。</p>
       </article>
       <article class="now-card">
         <span class="now-card__label">在记录</span>
         <h3>摄影、音乐与影像</h3>
-        <p>拍城市和光，做一点音乐，也给项目剪短片。</p>
+        <p>进行摄影与音乐制作，并为项目剪辑短片。</p>
       </article>
     </div>
   </section>
@@ -206,7 +206,7 @@ const colophon = [
     <header class="section-head">
       <div>
         <p class="kicker">Facets</p>
-        <h2 id="facets-title" class="section-head__title">几个切面</h2>
+        <h2 id="facets-title" class="section-head__title">专业方向</h2>
       </div>
     </header>
 
@@ -227,7 +227,7 @@ const colophon = [
     <header class="section-head">
       <div>
         <p class="kicker">Colophon</p>
-        <h2 id="colophon-title" class="section-head__title">这个站怎么搭的</h2>
+        <h2 id="colophon-title" class="section-head__title">技术实现</h2>
       </div>
     </header>
 
@@ -243,8 +243,8 @@ const colophon = [
     </dl>
 
     <p class="colophon__note">
-      没有前端框架运行时，没有大图首屏，也没有第三方模板。
-      纸张、撕边和胶带全部由 CSS 绘制；图表只在需要时加载。
+      站点未使用前端框架运行时、大图首屏或第三方模板。
+      界面由 CSS 构建，图表按需加载。
     </p>
   </section>
 

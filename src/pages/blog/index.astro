@@ -34,17 +34,16 @@ const jsonLd = {
 
 <BaseLayout
   title="全部文章"
-  description="按时间叠放的全部文章，可按分类和语言筛选。涵盖 Minecraft、开发、教程、随笔与生活。"
+  description="全部文章，可按分类与语言筛选。内容涵盖 Minecraft、开发、教程与随笔。"
   jsonLd={jsonLd}
 >
   <section class="masthead">
     <span class="masthead__ghost" aria-hidden="true">记</span>
     <div class="container">
       <p class="kicker">The Journal</p>
-      <h1 class="masthead__title">全部<em>纸片</em>。</h1>
+      <h1 class="masthead__title">全部<em>文章</em>。</h1>
       <p class="masthead__lede">
-        按时间叠放，没有算法推荐，也没有热门排序。
-        只有写下来的顺序，以及那些值得被反复翻看的句子。
+        按发布时间排列，不设算法推荐与热门排序。
       </p>
       <p class="masthead__count">
         {posts.length} Articles · 中文 {zhCount} / EN {enCount}
@@ -103,13 +102,13 @@ const jsonLd = {
   <section class="container journal" aria-labelledby="post-list-title">
     <h2 class="visually-hidden" id="post-list-title">文章列表</h2>
     <p class="result-count" role="status" aria-live="polite" data-result-count>
-      显示 {posts.length} 篇纸片
+      显示 {posts.length} 篇文章
     </p>
 
     {
       posts.length === 0 && (
         <div class="empty-state">
-          <p>还没有文章。示例内容已经删除，第一篇正在写。</p>
+          <p>目前还没有发布文章。</p>
         </div>
       )
     }
@@ -129,7 +128,7 @@ const jsonLd = {
     </div>
 
     <div class="empty-state" data-empty hidden>
-      <p>没有符合条件的纸片。换一个分类，或者切回「全部」看看。</p>
+      <p>没有符合条件的文章。请更换分类，或切回「全部」。</p>
     </div>
   </section>
 
@@ -230,7 +229,7 @@ const jsonLd = {
     });
 
     if (countEl) {
-      countEl.textContent = `显示 ${visible} 篇纸片`;
+      countEl.textContent = `显示 ${visible} 篇文章`;
     }
     if (emptyEl) {
       emptyEl.hidden = visible !== 0;

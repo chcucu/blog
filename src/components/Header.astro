@@ -16,10 +16,10 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand" href="/" aria-label={`${site.name} 首页`}>
-      <span class="brand-mark" aria-hidden="true">碎</span>
+      <span class="brand-mark" aria-hidden="true">S</span>
       <span class="brand-text">
         <span class="brand-name">{site.name}</span>
-        <span class="brand-en">{site.nameEn}</span>
+        {site.nameEn !== site.name && <span class="brand-en">{site.nameEn}</span>}
       </span>
     </a>
 

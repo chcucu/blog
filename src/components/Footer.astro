@@ -14,8 +14,8 @@ const navItems = [
 <footer class="site-footer">
   <div class="container">
     <div class="footer-note paper">
-      <p class="kicker">写信给我</p>
-      <h2 class="footer-note__title">有想法，<br />就贴在下面。</h2>
+      <p class="kicker">联系方式</p>
+      <h2 class="footer-note__title">如需合作或交流，<br />请发送邮件。</h2>
       <a class="footer-note__mail" href={`mailto:${site.email}`}>
         <Icon name="mail" size={18} />
         <span>{site.email}</span>
@@ -29,8 +29,8 @@ const navItems = [
     <div class="footer-grid">
       <div class="footer-brand">
         <a class="footer-brand__name" href="/">{site.name}</a>
-        <p>{site.tagline}。十年之约、开发、摄影、音乐与影像，留在这里的纸片。</p>
-        <p class="footer-brand__en">{site.nameEn}</p>
+        <p>{site.tagline}。内容涵盖 Minecraft 服务端开发、Web 工程、摄影、音乐与影像。</p>
+        <p class="footer-brand__en">{site.handle}</p>
       </div>
 
       <nav class="footer-col" aria-label="页脚导航">
@@ -65,7 +65,7 @@ const navItems = [
 
       <div class="footer-col">
         <h2 class="footer-col__title">订阅</h2>
-        <p class="footer-col__text">不想错过新纸片，可以订阅 RSS。</p>
+        <p class="footer-col__text">可通过 RSS 订阅更新。</p>
         <a class="btn btn--ghost footer-rss" href="/rss.xml">
           RSS
           <Icon name="rss" size={15} />
@@ -74,7 +74,7 @@ const navItems = [
     </div>
 
     <div class="footer-bottom">
-      <p>© {year} {site.author}. 用 Astro 与纸片搭成。</p>
+      <p>© {year} {site.author}. 由 Astro 构建。</p>
       <p class="footer-bottom__meta">{site.handle} · 保留所有权利</p>
     </div>
   </div>

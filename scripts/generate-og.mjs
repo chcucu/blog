@@ -100,11 +100,11 @@ function buildSvg({ title, category, date, lang, subtitle }) {
   const firstBaseline = 340 - ((lines.length - 1) * lineHeight) / 2;
   const subtitleText = subtitle
     ? truncateToWidth(subtitle, 15, 900)
-    : '一个关于技术、写作与生活的个人博客';
+    : '记录 Minecraft、Web、摄影与影像';
 
   const categoryLabel = category
     ? `${categories[category]?.zh ?? category} / ${categories[category]?.en ?? ''}`
-    : 'PAPER SCRAPS';
+    : 'S.A';
   const metaDate = date
     ? new Intl.DateTimeFormat('zh-CN', {
         year: 'numeric',
@@ -116,19 +116,19 @@ function buildSvg({ title, category, date, lang, subtitle }) {
   const titleLines = lines
     .map(
       (line, index) =>
-        `<text x="80" y="${firstBaseline + index * lineHeight}" font-family="Noto Serif CJK SC, Songti SC, serif" font-size="${size}" font-weight="500" fill="#14243a" letter-spacing="-1">${escapeXml(line)}</text>`,
+        `<text x="80" y="${firstBaseline + index * lineHeight}" font-family="Noto Serif CJK SC, Songti SC, serif" font-size="${size}" font-weight="500" fill="#1d1d1f" letter-spacing="-1">${escapeXml(line)}</text>`,
     )
     .join('');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#dde8f0"/>
-      <stop offset="1" stop-color="#f4efe5"/>
+      <stop offset="0" stop-color="#e7f0ff"/>
+      <stop offset="1" stop-color="#f5f5f7"/>
     </linearGradient>
   </defs>
 
-  <rect width="1200" height="630" fill="#f4efe5"/>
+  <rect width="1200" height="630" fill="#f5f5f7"/>
   <rect width="1200" height="630" fill="url(#wash)" opacity="0.55"/>
 
   <!-- 右侧纸片 -->
@@ -144,29 +144,29 @@ function buildSvg({ title, category, date, lang, subtitle }) {
 
   <!-- 品牌标记 -->
   <g transform="rotate(-3 108 98)">
-    <path d="M70 60 L146 58 L148 138 L138 144 L68 136 L64 128 Z" fill="#35638f"/>
-    <text x="108" y="121" text-anchor="middle" font-family="Noto Serif CJK SC, Songti SC, serif" font-size="42" fill="#fbf8f1">碎</text>
+    <path d="M70 60 L146 58 L148 138 L138 144 L68 136 L64 128 Z" fill="#007aff"/>
+    <text x="108" y="121" text-anchor="middle" font-family="Noto Serif CJK SC, Songti SC, serif" font-size="40" fill="#fbf8f1">S</text>
   </g>
-  <text x="168" y="96" font-family="Noto Serif CJK SC, Songti SC, serif" font-size="30" fill="#14243a" letter-spacing="2">碎纸集</text>
-  <text x="169" y="122" font-family="IBM Plex Mono, monospace" font-size="13" fill="#5d6f84" letter-spacing="4">PAPER SCRAPS</text>
+  <text x="168" y="96" font-family="Noto Serif CJK SC, Songti SC, serif" font-size="30" fill="#1d1d1f" letter-spacing="2">S.A</text>
+  <text x="169" y="122" font-family="IBM Plex Mono, monospace" font-size="13" fill="#6e6e73" letter-spacing="4">SHADOW AGENT</text>
 
-  <text x="1130" y="98" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="13" fill="#5d6f84" letter-spacing="3">ISSUE / 2026</text>
+  <text x="1130" y="98" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="13" fill="#6e6e73" letter-spacing="3">VOL. / 2026</text>
 
   <!-- 分类 -->
-  <rect x="80" y="178" width="${Math.max(150, textWidth(categoryLabel, 15) + 34)}" height="30" fill="#dde8f0"/>
-  <text x="97" y="199" font-family="IBM Plex Mono, monospace" font-size="15" fill="#22476d" letter-spacing="2">${escapeXml(categoryLabel)}</text>
+  <rect x="80" y="178" width="${Math.max(150, textWidth(categoryLabel, 15) + 34)}" height="30" fill="#e5efff"/>
+  <text x="97" y="199" font-family="IBM Plex Mono, monospace" font-size="15" fill="#0062cc" letter-spacing="2">${escapeXml(categoryLabel)}</text>
 
   <!-- 标题 -->
   ${titleLines}
 
   <!-- 分隔线 -->
-  <rect x="80" y="500" width="120" height="3" fill="#35638f"/>
+  <rect x="80" y="500" width="120" height="3" fill="#007aff"/>
 
   <!-- 底部信息 -->
-  <text x="80" y="552" font-family="IBM Plex Mono, monospace" font-size="15" fill="#5d6f84" letter-spacing="1">${escapeXml(subtitleText)}</text>
-  <text x="80" y="582" font-family="IBM Plex Mono, monospace" font-size="14" fill="#5d6f84" opacity="0.85" letter-spacing="1.5">${escapeXml(lang === 'en' ? 'WRITTEN IN ENGLISH' : '用中文写作')}${metaDate ? ` · ${escapeXml(metaDate)}` : ''}</text>
+  <text x="80" y="552" font-family="IBM Plex Mono, monospace" font-size="15" fill="#6e6e73" letter-spacing="1">${escapeXml(subtitleText)}</text>
+  <text x="80" y="582" font-family="IBM Plex Mono, monospace" font-size="14" fill="#6e6e73" opacity="0.85" letter-spacing="1.5">${escapeXml(lang === 'en' ? 'WRITTEN IN ENGLISH' : '用中文写作')}${metaDate ? ` · ${escapeXml(metaDate)}` : ''}</text>
 
-  <text x="1120" y="582" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="14" fill="#5d6f84" opacity="0.7" letter-spacing="2">${escapeXml(siteDomain)}</text>
+  <text x="1120" y="582" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="14" fill="#6e6e73" opacity="0.7" letter-spacing="2">${escapeXml(siteDomain)}</text>
 
 </svg>`;
 }

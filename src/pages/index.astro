@@ -41,10 +41,10 @@ const jsonLd = {
 
 <BaseLayout jsonLd={jsonLd}>
   <section class="masthead">
-    <span class="masthead__ghost" aria-hidden="true">碎</span>
+    <span class="masthead__ghost" aria-hidden="true">S</span>
     <div class="container">
-      <p class="kicker">Paper Scraps · Issue {issue}</p>
-      <h1 class="masthead__title">把想法，<em>剪成纸片</em>。</h1>
+      <p class="kicker">S.A · Vol. {issue}</p>
+      <h1 class="masthead__title">记录开发、<em>摄影与影像</em>。</h1>
       <form class="journal-search" action="/search/" method="get" role="search">
         <label class="visually-hidden" for="home-search">搜索文章</label>
         <span class="journal-search__icon" aria-hidden="true">
@@ -80,7 +80,7 @@ const jsonLd = {
             <span class="entry-card__label">Projects</span>
           </span>
           <span class="entry-card__title">查看项目</span>
-          <span class="entry-card__meta">{projects.length} 个在做的东西</span>
+          <span class="entry-card__meta">{projects.length} 个项目</span>
           <span class="entry-card__arrow" aria-hidden="true">
             <Icon name="arrow-right" size={16} />
           </span>
@@ -118,10 +118,10 @@ const jsonLd = {
       <section class="container home-empty" aria-labelledby="home-empty-title">
         <div class="home-empty__card">
           <p class="kicker">Writing · 0</p>
-          <h2 id="home-empty-title">文章还在写。</h2>
-          <p>示例内容已经全部删掉。第一篇会从这里开始。</p>
+          <h2 id="home-empty-title">暂无文章</h2>
+          <p>文章将在之后发布，目前可以先查看项目与个人信息。</p>
           <div class="home-empty__actions">
-            <a class="btn btn--ghost" href="/projects/">先看项目</a>
+            <a class="btn btn--ghost" href="/projects/">查看项目</a>
             <a class="btn btn--ghost" href="/about/">查看个人信息</a>
           </div>
         </div>
@@ -141,8 +141,8 @@ const jsonLd = {
     gridPosts.length > 0 && (
       <section class="container journal-section" aria-labelledby="latest-title">
         <div class="journal-meta">
-          <h2 id="latest-title" class="journal-meta__title">最新纸片</h2>
-          <span class="journal-meta__note">按时间叠放 · 共 {posts.length} 篇</span>
+          <h2 id="latest-title" class="journal-meta__title">最新文章</h2>
+          <span class="journal-meta__note">按发布时间排序 · 共 {posts.length} 篇</span>
         </div>
 
         <div class="post-grid">
@@ -162,7 +162,7 @@ const jsonLd = {
   <section class="container more-section" aria-label="项目">
     <div class="more-col">
       <div class="more-head">
-        <h2>在做的事</h2>
+        <h2>项目</h2>
         <a class="arrow-link" href="/projects/">
           全部项目
           <Icon name="arrow-right" size={15} />

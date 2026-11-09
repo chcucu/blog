@@ -184,14 +184,14 @@ const breadcrumbLd = {
         <nav class="article-pager container" aria-label="文章翻页">
           {newer && (
             <a class="pager-card pager-card--next" href={`/blog/${newer.id}/`}>
-              <span class="pager-card__label">更新的纸片</span>
+              <span class="pager-card__label">较新文章</span>
               <span class="pager-card__title">{newer.data.title}</span>
               <span class="pager-card__meta">{formatDate(newer.data.date, newer.data.lang)}</span>
             </a>
           )}
           {older && (
             <a class="pager-card pager-card--prev" href={`/blog/${older.id}/`}>
-              <span class="pager-card__label">更早的纸片</span>
+              <span class="pager-card__label">较早文章</span>
               <span class="pager-card__title">{older.data.title}</span>
               <span class="pager-card__meta">{formatDate(older.data.date, older.data.lang)}</span>
             </a>
@@ -205,8 +205,8 @@ const breadcrumbLd = {
         <section class="article-related container" aria-labelledby="related-title">
           <header class="related-head">
             <div>
-              <p class="kicker">继续翻</p>
-              <h2 id="related-title" class="related-head__title">相关的纸片</h2>
+              <p class="kicker">更多文章</p>
+              <h2 id="related-title" class="related-head__title">相关文章</h2>
             </div>
             <a class="arrow-link" href="/blog/">
               全部文章
