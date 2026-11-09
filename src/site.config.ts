@@ -61,8 +61,8 @@ export const site = {
 
   /** Umami 统计：填入自托管脚本地址和 website id 后自动加载。 */
   umami: {
-    scriptUrl: '',
-    websiteId: '',
+    scriptUrl: 'https://cloud.umami.is/script.js',
+    websiteId: '80113d49-4b17-41a7-a2fd-ceefeeed1854',
   },
 
   /** 点赞接口：部署到 Cloudflare Pages 后由 functions/api/likes.js 提供。 */
