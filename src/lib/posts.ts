@@ -83,11 +83,13 @@ export function tagCounts(posts: Post[]) {
 }
 
 export function categoryCounts(posts: Post[]) {
-  return (Object.keys(categories) as CategoryKey[]).map((key) => ({
-    key,
-    ...categories[key],
-    count: posts.filter((post) => post.data.category === key).length,
-  }));
+  return (Object.keys(categories) as CategoryKey[])
+    .map((key) => ({
+      key,
+      ...categories[key],
+      count: posts.filter((post) => post.data.category === key).length,
+    }))
+    .filter((item) => item.count > 0);
 }
 
 export function stripMarkdown(markdown = '') {
