@@ -1,0 +1,153 @@
+---
+import Icon from './Icon.astro';
+import { formatDate } from '../lib/posts';
+
+export interface Video {
+  bvid: string;
+  title: string;
+  cover: string;
+  url: string;
+  duration: string;
+  views: number;
+  publishedAt: string;
+  summary: string;
+}
+
+interface Props {
+  video: Video;
+}
+
+const { video } = Astro.props;
+const date = new Date(video.publishedAt);
+---
+
+<article class="video-card">
+  <button
+    type="button"
+    class="video-card__cover"
+    data-video-preview
+    data-bvid={video.bvid}
+    data-title={video.title}
+    aria-label={`预览视频：${video.title}`}
+  >
+    <img
+      src={video.cover}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      referrerpolicy="no-referrer"
+    />
+    <span class="video-card__play" aria-hidden="true">
+      <Icon name="play" size={22} />
+    </span>
+    <span class="video-card__time">{video.duration}</span>
+  </button>
+
+  <div class="video-card__body">
+    <h3 class="video-card__title">
+      <a href={video.url} target="_blank" rel="noopener noreferrer">{video.title}</a>
+    </h3>
+    <p class="video-card__meta">
+      {formatDate(date)} · {video.views.toLocaleString('zh-CN')} 次播放
+    </p>
+  </div>
+</article>
+
+<style>
+  .video-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .video-card__cover {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--rule-soft);
+    border-radius: 12px;
+    background: var(--paper-sunk);
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .video-card__cover img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform 0.35s var(--ease);
+  }
+
+  .video-card__cover:hover img {
+    transform: scale(1.03);
+  }
+
+  .video-card__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    background: rgb(0 0 0 / 0.18);
+    transition: background 0.2s var(--ease);
+  }
+
+  .video-card__play svg {
+    width: 46px;
+    height: 46px;
+    padding: 12px;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .video-card__cover:hover .video-card__play {
+    background: rgb(0 0 0 / 0.28);
+  }
+
+  .video-card__time {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 5px;
+    color: #ffffff;
+    background: rgb(0 0 0 / 0.62);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+  }
+
+  .video-card__body {
+    padding-top: 0.7rem;
+  }
+
+  .video-card__title {
+    font-family: var(--font-sans);
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+  }
+
+  .video-card__title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .video-card__title a:hover {
+    color: var(--blue-strong);
+  }
+
+  .video-card__meta {
+    margin-top: 0.35rem;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+  }
+</style>

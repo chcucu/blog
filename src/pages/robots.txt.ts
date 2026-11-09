@@ -5,6 +5,25 @@ export const GET: APIRoute = () => {
   const body = `User-agent: *
 Allow: /
 
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# LLM summary: ${site.url}/llms.txt
 Sitemap: ${site.url}/sitemap-index.xml
 `;
 

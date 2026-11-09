@@ -1,0 +1,166 @@
+---
+import Icon from './Icon.astro';
+
+export interface Repo {
+  name: string;
+  url: string;
+  description: string;
+  homepage: string;
+  language: string;
+  stars: number;
+  forks: number;
+  archived: boolean;
+  isFork: boolean;
+  pushedAt: string;
+  topics: string[];
+}
+
+interface Props {
+  repo: Repo;
+}
+
+const { repo } = Astro.props;
+const updated = new Date(repo.pushedAt);
+const date = `${updated.getFullYear()}-${String(updated.getMonth() + 1).padStart(2, '0')}-${String(updated.getDate()).padStart(2, '0')}`;
+
+const colors: Record<string, string> = {
+  TypeScript: '#3178c6',
+  JavaScript: '#f1e05a',
+  Java: '#b07219',
+  Kotlin: '#a97bff',
+  Python: '#3572a5',
+  HTML: '#e34c26',
+  CSS: '#563d7c',
+  Vue: '#41b883',
+  Astro: '#ff5a03',
+  'C++': '#f34b7d',
+  C: '#555555',
+  Shell: '#89e051',
+  Go: '#00add8',
+  Rust: '#dea584',
+};
+---
+
+<li class="repo-row" id={`repo-${repo.name}`}>
+  <div class="repo-row__head">
+    <a class="repo-row__name" href={repo.url} target="_blank" rel="noopener noreferrer">
+      <Icon name="github" size={16} />
+      {repo.name}
+    </a>
+    {repo.isFork && <span class="repo-row__badge">Fork</span>}
+    {repo.archived && <span class="repo-row__badge">已归档</span>}
+    <span class="repo-row__stars" aria-label={`${repo.stars} 个星标`}>★ {repo.stars}</span>
+  </div>
+
+  {repo.description && <p class="repo-row__desc">{repo.description}</p>}
+
+  <div class="repo-row__meta">
+    {repo.language && (
+      <span class="repo-row__lang">
+        <span
+          class="repo-row__dot"
+          style={`background:${colors[repo.language] ?? '#8e8e93'}`}
+          aria-hidden="true"
+        ></span>
+        {repo.language}
+      </span>
+    )}
+    <span>更新于 {date}</span>
+    {repo.homepage && (
+      <a href={repo.homepage} target="_blank" rel="noopener noreferrer" class="repo-row__link">
+        在线演示
+        <Icon name="external" size={12} />
+      </a>
+    )}
+  </div>
+</li>
+
+<style>
+  .repo-row {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+
+  .repo-row:first-child {
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .repo-row__head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .repo-row__name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--blue-strong);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .repo-row__name:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .repo-row__badge {
+    padding: 0.08rem 0.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .repo-row__stars {
+    margin-left: auto;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+  }
+
+  .repo-row__desc {
+    margin-top: 0.35rem;
+    color: var(--ink-2);
+    font-size: 0.86rem;
+    line-height: 1.6;
+  }
+
+  .repo-row__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 0.4rem;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+  }
+
+  .repo-row__lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .repo-row__dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+  }
+
+  .repo-row__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--blue-strong);
+    text-decoration: none;
+  }
+</style>

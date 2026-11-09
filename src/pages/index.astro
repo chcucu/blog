@@ -3,6 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import PostCard from '../components/PostCard.astro';
 import FeaturedPost from '../components/FeaturedPost.astro';
+import VideoCard from '../components/VideoCard.astro';
+import VideoPlayer from '../components/VideoPlayer.astro';
+import RepoRow from '../components/RepoRow.astro';
+import videosData from '../data/videos.json';
+import reposData from '../data/repos.json';
 import { categoryLabel } from '../data/taxonomy';
 import {
   categoryCounts,
@@ -13,6 +18,8 @@ import { site } from '../site.config';
 
 const posts = await getPosts();
 const projects = await getProjects();
+const videos = videosData.videos.slice(0, 3);
+const repos = reposData.repos.slice(0, 5);
 
 const featured = posts.find((post) => post.data.featured) ?? posts[0];
 const gridPosts = posts.filter((post) => post.id !== featured?.id).slice(0, 6);
@@ -186,11 +193,80 @@ const jsonLd = {
       </ul>
     </div>
   </section>
+
+  {
+    videos.length > 0 && (
+      <section class="container home-media" aria-labelledby="home-videos-title">
+        <div class="more-head">
+          <h2 id="home-videos-title">视频</h2>
+          <a class="arrow-link" href="/videos/">
+            全部视频
+            <Icon name="arrow-right" size={15} />
+          </a>
+        </div>
+        <div class="home-video-grid">
+          {videos.map((video) => <VideoCard video={video} />)}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    repos.length > 0 && (
+      <section class="container home-repos" aria-labelledby="home-repos-title">
+        <div class="more-head">
+          <h2 id="home-repos-title">开源</h2>
+          <a class="arrow-link" href="/repos/">
+            全部仓库
+            <Icon name="arrow-right" size={15} />
+          </a>
+        </div>
+        <ul class="home-repo-list">
+          {repos.map((repo) => <RepoRow repo={repo} />)}
+        </ul>
+      </section>
+    )
+  }
+
+  <VideoPlayer />
 </BaseLayout>
 
 <style>
   .home-featured {
     margin-bottom: clamp(3.5rem, 7vw, 5.5rem);
+  }
+
+  .home-media {
+    margin-top: clamp(3rem, 7vw, 5rem);
+  }
+
+  .home-video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1.2rem, 2.6vw, 2rem);
+    margin-top: 1.4rem;
+  }
+
+  .home-repos {
+    margin-top: clamp(3rem, 7vw, 5rem);
+  }
+
+  .home-repo-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  @media (max-width: 860px) {
+    .home-video-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .home-video-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .home-empty {

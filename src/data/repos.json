@@ -1,0 +1,133 @@
+{
+  "fetchedAt": "2026-11-09T13:27:16.231Z",
+  "source": "https://github.com/chcucu?tab=repositories",
+  "repos": [
+    {
+      "name": "blog",
+      "url": "https://github.com/chcucu/blog",
+      "description": "S.A · shadow_agent404 的个人站点与内容索引",
+      "homepage": "https://blog.tenyearmc.top",
+      "language": "Astro",
+      "stars": 0,
+      "forks": 0,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-11-09T13:16:03Z",
+      "topics": [
+        "astro",
+        "blog",
+        "cloudflare-pages",
+        "personal-site"
+      ]
+    },
+    {
+      "name": "CleanPlayers",
+      "url": "https://github.com/chcucu/CleanPlayers",
+      "description": "",
+      "homepage": "",
+      "language": "Java",
+      "stars": 0,
+      "forks": 0,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-11-07T10:48:46Z",
+      "topics": []
+    },
+    {
+      "name": "FiscalCraft",
+      "url": "https://github.com/chcucu/FiscalCraft",
+      "description": "FiscalCraft：Paper 1.21.11 服务器经济系统插件（银行 / 税收 / 贷款 / 风控），Vault 钱包底座，单线程串行账务。",
+      "homepage": "",
+      "language": "Java",
+      "stars": 0,
+      "forks": 0,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-11-06T18:40:12Z",
+      "topics": [
+        "banking",
+        "economy",
+        "minecraft",
+        "minecraft-plugin",
+        "paper",
+        "vault"
+      ]
+    },
+    {
+      "name": "BrewerySuite",
+      "url": "https://github.com/chcucu/BrewerySuite",
+      "description": "BreweryX 酒桶全息显示、配方书与酒市插件",
+      "homepage": "",
+      "language": "Java",
+      "stars": 0,
+      "forks": 0,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-11-01T09:31:25Z",
+      "topics": []
+    },
+    {
+      "name": "ticket-system",
+      "url": "https://github.com/chcucu/ticket-system",
+      "description": "",
+      "homepage": "",
+      "language": "TypeScript",
+      "stars": 1,
+      "forks": 0,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-11-01T09:24:19Z",
+      "topics": []
+    },
+    {
+      "name": "meetease",
+      "url": "https://github.com/chcucu/meetease",
+      "description": "MeetEase：基于 Next.js 的活动平台，包含活动列表、地图定位与数据存储。",
+      "homepage": "",
+      "language": "TypeScript",
+      "stars": 0,
+      "forks": 0,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-11-01T09:24:11Z",
+      "topics": []
+    },
+    {
+      "name": "BentoMenu",
+      "url": "https://github.com/chcucu/BentoMenu",
+      "description": "A themeable container-menu framework for Spigot, Paper and Folia (1.18.2-26.x). YAML menus, Java/Kotlin API, no NMS.",
+      "homepage": "",
+      "language": "Java",
+      "stars": 1,
+      "forks": 1,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-11-01T09:23:54Z",
+      "topics": [
+        "folia",
+        "gui",
+        "java",
+        "kotlin",
+        "menu",
+        "minecraft",
+        "minecraft-plugin",
+        "paper",
+        "spigot",
+        "yaml"
+      ]
+    },
+    {
+      "name": "Schneckenhaus-Refactored",
+      "url": "https://github.com/chcucu/Schneckenhaus-Refactored",
+      "description": "Refactored fork of Lama06/Schneckenhaus: fixes the SQLite primary key conflict, the shulker box duplication exploit, and improves /sh home.",
+      "homepage": "https://github.com/Lama06/Schneckenhaus",
+      "language": "Java",
+      "stars": 0,
+      "forks": 0,
+      "archived": false,
+      "isFork": false,
+      "pushedAt": "2026-10-31T01:02:14Z",
+      "topics": []
+    }
+  ]
+}

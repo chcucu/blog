@@ -41,7 +41,35 @@ const websiteLd = {
   },
 };
 
-const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [websiteLd];
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': new URL('/#person', site.url).href,
+  name: site.author,
+  alternateName: [site.name, site.handle],
+  url: new URL('/about/', site.url).href,
+  image: new URL(site.avatar, site.url).href,
+  email: `mailto:${site.email}`,
+  description: site.description,
+  jobTitle: 'Minecraft 服务器管理者、Paper 插件开发者',
+  knowsAbout: [
+    'Minecraft 服务端开发',
+    'Paper 插件开发',
+    'Web 开发',
+    '摄影',
+    '音乐制作',
+    '视频制作',
+  ],
+  sameAs: site.socials
+    .filter((item) => item.href.startsWith('http'))
+    .map((item) => item.href),
+  mainEntityOfPage: new URL('/about/', site.url).href,
+};
+
+const blocks = [
+  ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [websiteLd]),
+  personLd,
+];
 ---
 
 <title>{fullTitle}</title>
@@ -49,6 +77,8 @@ const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [websiteLd
 <meta name="author" content={site.author} />
 <link rel="canonical" href={canonical} />
 {noIndex && <meta name="robots" content="noindex, nofollow" />}
+{!noIndex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
+<link rel="alternate" type="text/plain" title={`${site.name} · LLM 摘要`} href="/llms.txt" />
 <link rel="alternate" type="application/rss+xml" title={`${site.name} · RSS`} href="/rss.xml" />
 
 <meta property="og:type" content={type} />

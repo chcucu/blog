@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import VideoCard from '../components/VideoCard.astro';
+import VideoPlayer from '../components/VideoPlayer.astro';
+import Icon from '../components/Icon.astro';
+import videosData from '../data/videos.json';
+import { site } from '../site.config';
+
+const videos = videosData.videos;
+const bilibili = site.socials.find((item) => item.icon === 'bilibili');
+const updated = videosData.fetchedAt
+  ? new Date(videosData.fetchedAt).toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' })
+  : '';
+
+function isoDuration(value: string) {
+  const parts = value.split(':').map(Number);
+  if (parts.length === 3) return `PT${parts[0]}H${parts[1]}M${parts[2]}S`;
+  if (parts.length === 2) return `PT${parts[0]}M${parts[1]}S`;
+  return `PT${parts[0] ?? 0}S`;
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '视频',
+  url: new URL('/videos/', site.url).href,
+  description: '同步自 Bilibili 的视频列表，包含封面、时长与播放页链接。',
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: videos.map((video, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'VideoObject',
+        name: video.title,
+        description: video.summary || video.title,
+        thumbnailUrl: video.cover,
+        uploadDate: video.publishedAt,
+        url: video.url,
+        embedUrl: `https://player.bilibili.com/player.html?bvid=${video.bvid}`,
+        duration: video.duration ? isoDuration(video.duration) : undefined,
+      },
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="视频"
+  description="同步自 Bilibili 的视频列表，包含封面、时长与播放页链接。"
+  jsonLd={jsonLd}
+>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">V</span>
+    <div class="container">
+      <p class="kicker">Bilibili · Video</p>
+      <h1 class="masthead__title">视频</h1>
+      <p class="masthead__lede">
+        同步自 B 站，按发布时间排列。点击封面可直接预览，或前往 B 站观看。
+      </p>
+      <p class="masthead__count">
+        {videos.length} Videos{updated && ` · 更新于 ${updated}`}
+      </p>
+    </div>
+  </section>
+
+  <section class="container video-section" aria-label="视频列表">
+    {
+      videos.length > 0 ? (
+        <>
+          <div class="video-grid">
+            {videos.map((video) => <VideoCard video={video} />)}
+          </div>
+          <p class="video-section__more">
+            <a href={bilibili?.href ?? 'https://space.bilibili.com/'} target="_blank" rel="noopener noreferrer">
+              在 B 站查看频道
+              <Icon name="external" size={14} />
+            </a>
+          </p>
+        </>
+      ) : (
+        <p class="video-section__empty">暂无视频。同步任务运行后会显示在这里。</p>
+      )
+    }
+  </section>
+
+  <VideoPlayer />
+</BaseLayout>
+
+<style>
+  .video-section {
+    padding-top: 0;
+    padding-bottom: clamp(3rem, 8vw, 6rem);
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1.2rem, 2.6vw, 2rem);
+  }
+
+  .video-section__more {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .video-section__more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--blue-strong);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .video-section__empty {
+    padding: 4rem 0;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  @media (max-width: 860px) {
+    .video-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .video-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

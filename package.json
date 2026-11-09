@@ -11,6 +11,8 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "prebuild": "node scripts/sync-content.mjs",
+    "sync": "node scripts/sync-content.mjs",
     "preview": "astro preview",
     "og": "node scripts/generate-og.mjs",
     "deploy": "astro build && wrangler pages deploy dist --project-name tenyear-blog"

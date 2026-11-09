@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RepoRow from '../components/RepoRow.astro';
+import Icon from '../components/Icon.astro';
+import reposData from '../data/repos.json';
+import { site } from '../site.config';
+
+const repos = reposData.repos;
+const github = site.socials.find((item) => item.icon === 'github');
+const updated = reposData.fetchedAt
+  ? new Date(reposData.fetchedAt).toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' })
+  : '';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: '开源',
+  url: new URL('/repos/', site.url).href,
+  description: 'shadow_agent404 在 GitHub 上的全部公开仓库，按最近推送排序。',
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: repos.map((repo, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'SoftwareSourceCode',
+        name: repo.name,
+        description: repo.description || repo.name,
+        codeRepository: repo.url,
+        programmingLanguage: repo.language || undefined,
+        url: repo.homepage || repo.url,
+      },
+    })),
+  },
+};
+---
+
+<BaseLayout
+  title="开源"
+  description="shadow_agent404 在 GitHub 上的全部公开仓库，按最近推送排序。"
+  jsonLd={jsonLd}
+>
+  <section class="masthead">
+    <span class="masthead__ghost" aria-hidden="true">O</span>
+    <div class="container">
+      <p class="kicker">GitHub · Open Source</p>
+      <h1 class="masthead__title">开源</h1>
+      <p class="masthead__lede">
+        GitHub 上的全部公开仓库，按最近推送排序，包含 Fork 与归档项目。
+      </p>
+      <p class="masthead__count">
+        {repos.length} Repositories{updated && ` · 更新于 ${updated}`}
+      </p>
+    </div>
+  </section>
+
+  <section class="container repo-section" aria-label="公开仓库列表">
+    {
+      repos.length > 0 ? (
+        <>
+          <ul class="repo-list">
+            {repos.map((repo) => <RepoRow repo={repo} />)}
+          </ul>
+          <p class="repo-section__more">
+            <a href={github?.href ?? 'https://github.com/'} target="_blank" rel="noopener noreferrer">
+              在 GitHub 查看主页
+              <Icon name="external" size={14} />
+            </a>
+          </p>
+        </>
+      ) : (
+        <p class="repo-section__empty">暂无仓库。同步任务运行后会显示在这里。</p>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .repo-section {
+    padding-top: 0;
+    padding-bottom: clamp(3rem, 8vw, 6rem);
+    max-width: 56rem;
+  }
+
+  .repo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .repo-section__more {
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .repo-section__more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--blue-strong);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .repo-section__empty {
+    padding: 4rem 0;
+    color: var(--ink-3);
+    text-align: center;
+  }
+</style>
